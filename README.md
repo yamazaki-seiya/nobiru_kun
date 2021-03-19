@@ -4,6 +4,12 @@
 
 ## 開発環境
 
+### 初回
+
+- `.env` という名前で空ファイルをプロジェクト直下に作成
+
+### 開発環境起動
+
 1. VSCode 起動
 2. 左下のアイコンクリック
 3. 「Remote-Containers: Reopen inContainer」クリック
