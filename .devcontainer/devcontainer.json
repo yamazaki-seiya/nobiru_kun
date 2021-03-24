@@ -73,7 +73,7 @@
     "[yaml]": {
       "editor.tabSize": 2
     },
-    "autoDocstring.docstringFormat": "numpy",
+    "autoDocstring.docstringFormat": "google",
     "autoDocstring.startOnNewLine": true
   },
 
