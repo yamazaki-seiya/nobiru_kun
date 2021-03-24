@@ -23,7 +23,7 @@
   // "runServices": [],
 
   // Uncomment the next line if you want to keep your containers running after VS Code shuts down.
-  "shutdownAction": "stopCompose",
+  // "shutdownAction": "stopCompose",
 
   // Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
   "remoteUser": "vscode",
