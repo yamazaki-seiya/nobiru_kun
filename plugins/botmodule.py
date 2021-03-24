@@ -1,11 +1,7 @@
-import json
 import os
 import re
-from datetime import datetime
 
-import requests
-from slackbot.bot import listen_to, respond_to
-from sympy.parsing.sympy_parser import parse_expr
+from slackbot.bot import listen_to
 
 GCP_TOKEN = os.getenv('GCP_TOKEN')
 OWM_TOKEN = os.getenv('OWM_TOKEN')
@@ -13,14 +9,16 @@ OWM_TOKEN = os.getenv('OWM_TOKEN')
 
 def add_bot_message_subtype(message):
     """ ボットのメッセージだとわかるように判別をつける """
-    message.body['subtype'] ='bot_message'
+    message.body['subtype'] = 'bot_message'
     return message
+
 
 def validation_bot_subtype(message):
     """ ボットのメッセージか判定する """
     if 'subtype' in message.body and message.body['subtype'] == 'bot_message':
         return True
     return False
+
 
 @listen_to(r'.*@.*@.*')
 def divede_mention(message):
