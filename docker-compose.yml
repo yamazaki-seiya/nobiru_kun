@@ -1,13 +1,14 @@
-version: '3'
+version: "3"
 services:
   homeru_bot:
-    build: 
+    build:
       context: .
       dockerfile: .devcontainer/Dockerfile
       args:
         WORKDIR: /homeru_bot
     volumes:
       - .:/homeru_bot
+      - ${USERPROFILE-~}/.ssh:/home/vscode/.ssh
     image: homeru_bot-image
     container_name: homeru_bot-container
     tty: true
