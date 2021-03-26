@@ -36,8 +36,6 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
     && apt-get install -y nodejs \
     && npm install --global pyright
 
-RUN pip install -U pip
-
 # Create a non-root user to use if preferred - see https://aka.ms/vscode-remote/containers/non-root-user.
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
@@ -55,13 +53,6 @@ RUN wget https://raw.githubusercontent.com/git/git/master/contrib/completion/git
     source ~/.git-prompt.sh\n\
     export PS1='\\[\\e]0;\\u@\\h: \\w\\a\\]\${debian_chroot:+(\$debian_chroot)}\\[\\033[01;32m\\]\\u\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\[\\033[1;30m\\]\$(__git_ps1)\\[\\033[0m\\] \\$ '\n\
     " >>  /home/vscode/.bashrc
-
-# copy requirements files
-COPY ./requirements.txt /tmp/requirements.txt
-COPY ./requirements-dev.txt /tmp/requirements-dev.txt
-
-# library install
-RUN pip install -r /tmp/requirements.txt -r /tmp/requirements-dev.txt
 
 ENV DEBIAN_FRONTEND=
 CMD ["/bin/bash"]
