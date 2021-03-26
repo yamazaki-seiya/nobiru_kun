@@ -11,4 +11,3 @@ services:
     image: homeru_bot-image
     container_name: homeru_bot-container
     tty: true
-    env_file: .env
