@@ -4,4 +4,4 @@ exclude=work
 max-complexity=10
 inline-quotes=single
 multiline-quotes=single
-docstring-quotes=single
+docstring-quotes=double
