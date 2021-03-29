@@ -1,3 +1,7 @@
+[![black](https://github.com/yamazaki-seiya/homeru_kun/actions/workflows/black.yml/badge.svg)](https://github.com/yamazaki-seiya/homeru_kun/actions/workflows/black.yml)
+[![flake8](https://github.com/yamazaki-seiya/homeru_kun/actions/workflows/flake8.yml/badge.svg)](https://github.com/yamazaki-seiya/homeru_kun/actions/workflows/flake8.yml)
+[![pyright](https://github.com/yamazaki-seiya/homeru_kun/actions/workflows/pyright.yml/badge.svg)](https://github.com/yamazaki-seiya/homeru_kun/actions/workflows/pyright.yml)
+
 ## homeru_kun
 
 褒めるくんを作る
