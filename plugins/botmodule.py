@@ -1,4 +1,5 @@
 import os
+import random
 import re
 
 from slackbot.bot import listen_to
@@ -40,3 +41,27 @@ def divede_mention(message):
         if mo is not None:
             mnsmsg = mo.group()
             message.send(mnsmsg)
+
+
+@listen_to(r'.*@.*')
+def homeru_post(message):
+    """
+    メンション付きの投稿がされた場合に、メッセージ内のメンションされた人をほめる機能
+    """
+
+    # メンションが入っている投稿がされた場合
+
+    # TODO: ほめる君自身の投稿には反応しない仕様にする
+
+    # TODO: スレッド内の投稿を拾うかを決める
+    # TODO: 拾う場合：スレッド内でからむ
+    # TODO: 拾わない場合：拾わない仕様にする
+
+    # ほめる言葉を作成する
+    # TODO:ほめる言葉＋アイコンにする
+
+    homeru_message_list = ('すごいぞ', 'sugoizo', 'ohayou', 'おほほほ')
+    homeru_message = random.choice(homeru_message_list)
+
+    # ほめる言葉を送信する
+    message.send(homeru_message)
