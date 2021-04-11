@@ -1,2 +1,5 @@
 slackbot==1.0.0
 sympy==1.6.2
+pandas==1.2.3
+python-dotenv==0.17.0
+slack_sdk==3.4.2
