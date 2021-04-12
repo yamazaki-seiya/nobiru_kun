@@ -49,19 +49,56 @@ def homeru_post(message):
     メンション付きの投稿がされた場合に、メッセージ内のメンションされた人をほめる機能
     """
 
-    # メンションが入っている投稿がされた場合
+    homeru_message_list = [
+        'のことほんま尊敬するわ:star:',
+        '相変わらずすごいやつやな:rose:',
+        'ほんとめっちゃ助かってるで',
+        'いつもさんきゅーやで',
+    ]
 
-    # TODO: ほめる君自身の投稿には反応しない仕様にする
+    # TODO:メンションされたユーザー名を取り出す
+    text = message.body['text']
+    print(text)
 
-    # TODO: スレッド内の投稿を拾うかを決める
+    m = re.compile(r'<@.*>')
+
+    text_list = re.split('[\xa0| |,|;]', text)
+
+    for i in text_list:
+
+        mo = m.match(i)
+
+        if mo is not None:
+
+            num = random.randint(0, len(homeru_message_list) - 1)
+            homeru_message = homeru_message_list.pop(num)
+
+            mnsmsg = mo.group()
+            if message.body['thread_ts']:
+                message.send(f'{mnsmsg} {homeru_message}', thread_ts=message.body['thread_ts'])
+            else:
+                message.send(f'{mnsmsg} {homeru_message}')
+
+    # TODO: ほめる君自身の投稿には反応しない仕様にする→# 知らない言葉を聞いた時のデフォルトの応答で対応
+
+    # TODO: スレッド内の投稿を拾うかを決める(デフォルトはチャネル内返信)
+
     # TODO: 拾う場合：スレッド内でからむ
+
     # TODO: 拾わない場合：拾わない仕様にする
 
     # ほめる言葉を作成する
     # TODO:ほめる言葉＋アイコンにする
 
-    homeru_message_list = ('すごいぞ', 'sugoizo', 'ohayou', 'おほほほ')
-    homeru_message = random.choice(homeru_message_list)
+    # homeru_message_list = (
+    #     'のことほんま尊敬するわ:star:',
+    #     '相変わらずすごいやつやな:rose:',
+    #     'ほんとめっちゃ助かってるで',
+    #     'いつもさんきゅーやで',
+    # )
+    # homeru_message = random.choice(homeru_message_list)
 
-    # ほめる言葉を送信する
-    message.send(homeru_message)
+    # # TODO: メンション付きのほめる言葉を作成
+
+    # # ほめる言葉を送信する
+    # message.send(homeru_message)
