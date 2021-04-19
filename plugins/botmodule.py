@@ -29,7 +29,7 @@ def homeru_post(message):
 
     # TODO: validationする
 
-    homeru_message_list = [
+    HOMERU_MESSAGE_LIST = [
         'のことほんま尊敬するわ:star:',
         '相変わらずすごいやつやな:rose:',
         'ほんとめっちゃ助かってるで:smiling_face_with_3_hearts:',
@@ -52,8 +52,8 @@ def homeru_post(message):
         if mo is not None:
 
             # 複数ユーザーに同じメッセージを送らない仕様にする
-            num = random.randint(0, len(homeru_message_list) - 1)
-            homeru_message = homeru_message_list.pop(num)
+            num = random.randint(0, len(HOMERU_MESSAGE_LIST) - 1)
+            homeru_message = HOMERU_MESSAGE_LIST.pop(num)
 
             mnsmsg = mo.group()
 
