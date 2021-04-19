@@ -35,16 +35,17 @@ def homeru_post(message):
         'ほんとめっちゃ助かってるで:smiling_face_with_3_hearts:',
         'いつもさんきゅーやで:four_leaf_clover:',
         'のおかげで今の俺らがあるんやわ:bird:',
-        'お前がおらんかったら無理やったで:Hello:',
+        'お前がおらんかったら無理やったで:bouquet:',
     ]
 
     text = message.body['text']
     print(text)
 
     m = re.compile(r'<@.*>')
+
     # TODO: コピペした場合は' ',スラックでメンションを連続して入力する場合には'\xa0'が引っかかる
     text_list = re.split('[\xa0| |,|;]', text)
-
+    print(text_list)
     for i in text_list:
 
         mo = m.match(i)
