@@ -50,10 +50,7 @@ def main():
         ].reset_index()
 
         chat = None
-
         for idx, row in df_best_comments.iterrows():
-            client = WebClient(token=os.environ.get('SLACK_TOKEN'))
-
             chat = client.chat_getPermalink(
                 token=os.environ.get('SLACK_TOKEN'),
                 channel=channel_id,
