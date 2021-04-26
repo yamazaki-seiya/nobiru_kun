@@ -1,2 +1,2 @@
-homeru_comment: python bot.py
-homeru_analysis: python analysis.py
+homerukun: python bot.py
+homerukun_aggregate_batch: python analysis.py
