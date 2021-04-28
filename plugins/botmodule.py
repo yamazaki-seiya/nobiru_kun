@@ -6,9 +6,6 @@ import re
 
 from slackbot.bot import listen_to
 
-GCP_TOKEN = os.getenv('GCP_TOKEN')
-OWM_TOKEN = os.getenv('OWM_TOKEN')
-
 _EXTRACT_USER_PATTERN = re.compile(r'<@.*>')
 _MESSAGE_SPLIT_PATTERN = re.compile(r'[\xa0| |,|;]')
 
