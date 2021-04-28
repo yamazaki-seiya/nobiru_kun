@@ -60,6 +60,16 @@ def _extract_users(message):
     return user_list
 
 
+def _get_post_message(user_list):
+    """ユーザーをほめるメッセージを生成する"""
+
+    text_list = _create_random_element_list('resources/homeru_message_text.csv', len(user_list))
+    stamp_list = _create_random_element_list('resources/homeru_message_stamp.csv', len(user_list))
+    post_messages = [f'{u} {t}{s}' for u, t, s in zip(user_list, text_list, stamp_list)]
+
+    return '\n\n'.join(post_messages)
+
+
 @listen_to(r'.*@.*')
 def homeru_post(message):
     """
@@ -76,16 +86,9 @@ def homeru_post(message):
     user_list = _extract_users(text)
     print(f'user_num: {len(user_list)}')
 
-    homeru_text_list = _create_random_element_list(
-        'resources/homeru_message_text.csv', len(user_list)
-    )
-    homeru_stamp_list = _create_random_element_list(
-        'resources/homeru_message_stamp.csv', len(user_list)
-    )
+    post_message = _get_post_message(user_list)
 
-    for user, text, stamp in zip(user_list, homeru_text_list, homeru_stamp_list):
-        # スレッド内のユーザーの返信に、スレッドの外で反応すると会話の流れがわかりにくいため
-        if 'thread_ts' in message.body:
-            message.send(f'{user} {text}{stamp}', thread_ts=message.body['thread_ts'])
-        else:
-            message.send(f'{user} {text}{stamp}')
+    # スレッド内のユーザーの返信に、スレッドの外で反応すると会話の流れがわかりにくいため
+    message.send(
+        post_message, thread_ts=message.body['thread_ts'] if 'thread_ts' in message.body else None
+    )
