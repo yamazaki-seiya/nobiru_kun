@@ -42,18 +42,18 @@ def _create_random_element_list(path, user_num):
 
 def _extract_users(message):
     """メッセージからメンションするためのユーザーのリストを抽出する"""
-    regex_patten = re.compile(r'<@.*>')
+    extract_user_pattern = re.compile(r'<@.*>')
 
     # コメント内のメンションのsplit_stringとして現状以下のパターンが大多数を占める
     #   - ' '（半角スペース）, '\xa0'（ノーブレークスペース）
-    split_character = '[\xa0| |,|;]'
-    splitted_message = re.split(split_character, message)
+    split_pattern = r'[\xa0| |,|;]'
+    splitted_message = re.split(split_pattern, message)
     print(f'splitted_message:{splitted_message}')
 
     # TODO:メンションされたユーザーが重複する場合に返答は1回にするかを検討する
     user_list = []
     for words in splitted_message:
-        menttioned_user = regex_patten.match(words)
+        menttioned_user = extract_user_pattern.match(words)
         if menttioned_user is not None:
             user_list.append(menttioned_user.group())
 
