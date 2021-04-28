@@ -22,21 +22,20 @@ def validation_bot_subtype(message):
     return False
 
 
-def create_homeru_message(user_num):
-    """メッセージリストを読み出して、スタンプと組み合わせて、メッセージを生成する"""
-    with open('resources/homeru_message_stamp.csv', newline='') as csvfile_stamp:
-        homeru_message_stamp_list = [s for s in csv.reader(csvfile_stamp)]
+def create_random_element_list(path, user_num):
+    """メッセージの元ファイルを読み出して、ランダムなユーザー数分のテキストリストを生成する"""
+    with open(path, newline='') as csvfile:
+        text_list = [s[0] for s in csv.reader(csvfile)]
 
-    with open('resources/homeru_message_text.csv', newline='') as csvfile_text:
-        homeru_message_text_list = [t for t in csv.reader(csvfile_text)]
+    random.shuffle(text_list)
 
-    # 複数ユーザーに同じメッセージを送らない仕様にする
-    # ユーザーの数よりメッセージの数が少ない場合にも対応する
-    # num = random.choice(0, len(homeru_message_stamp_list) - 1)
-    # homeru_message = homeru_message_stamp_list.pop(num)
-    # num = random.randint(0, len(homeru_message_stamp_list) - 1)
-    # homeru_message = homeru_message_stamp_list.pop(num)
-    return ['a'] * user_num
+    # 倍数分だけテキストリストの要素を増やす
+    scale_num = user_num / len(text_list)
+    if scale_num > 1:
+        for i in range(int(scale_num)):
+            text_list += random.sample(text_list, len(text_list))
+
+    return text_list[:user_num]
 
 
 def extract_users(message):
@@ -70,11 +69,17 @@ def homeru_post(message):
     text = message.body['text']
     print(f'ポストされたメッセージ: {text}')
     user_list = extract_users(text)
-    homeru_message_list = create_homeru_message(len(user_list))
+    homeru_text_list = create_random_element_list(
+        'resources/homeru_message_text.csv', len(user_list)
+    )
+    homeru_stamp_list = create_random_element_list(
+        'resources/homeru_message_stamp.csv', len(user_list)
+    )
 
-    for user, homeru_message in zip(user_list, homeru_message_list):
+    print(f'user_num: {len(user_list)}')
+    for user, text, stamp in zip(user_list, homeru_text_list, homeru_stamp_list):
         # スレッド内のユーザーの返信に、スレッドの外で反応すると会話の流れがわかりにくいため
         if 'thread_ts' in message.body:
-            message.send(f'{user} {homeru_message}', thread_ts=message.body['thread_ts'])
+            message.send(f'{user} {text}{stamp}', thread_ts=message.body['thread_ts'])
         else:
-            message.send(f'{user} {homeru_message}')
+            message.send(f'{user} {text}{stamp}')
