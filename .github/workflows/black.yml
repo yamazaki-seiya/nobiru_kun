@@ -26,5 +26,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-check
-          black_args: "--diff --line-length 100 --skip-string-normalization"
+          black_args: "--line-length 100 --skip-string-normalization"
           fail_on_error: true
