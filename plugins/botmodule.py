@@ -1,42 +1,91 @@
-import os
+import csv
+import math
+import random
 import re
 
 from slackbot.bot import listen_to
 
-GCP_TOKEN = os.getenv('GCP_TOKEN')
-OWM_TOKEN = os.getenv('OWM_TOKEN')
+_EXTRACT_USER_PATTERN = re.compile(r'<@.*>')
+
+# メンションされたユーザーを抽出するための正規表現パターン
+# メンションユーザーの区切り文字としては現状以下のパターンが大多数を占めるが他の文字も考慮した
+#   - 半角スペース、'\xa0'（ノーブレークスペース）
+#
+# 投稿メッセージ例: @user1 @user2,@user3;@user4 messages
+_MENTION_SPLIT_PATTERN = re.compile(r'[\xa0| |,|;]')
 
 
-def add_bot_message_subtype(message):
-    """ ボットのメッセージだとわかるように判別をつける """
+@listen_to(r'.*@.*')
+def homeru_post(message):
+    """
+    メンション付きの投稿がされた場合に、メッセージ内のメンションされた人をほめる機能
+    """
+
+    _validation_bot_subtype(message)
+
+    # このボットの投稿に反応しないようにする
+    _add_bot_message_subtype(message)
+
+    text = message.body['text']
+    print(f'ポストされたメッセージ: {text}')
+    user_list = _extract_users(text)
+    print(f'user_num: {len(user_list)}')
+
+    post_message = _get_post_message(user_list)
+
+    # スレッド内のユーザーの返信に、スレッドの外で反応すると会話の流れがわかりにくいため
+    message.send(
+        post_message, thread_ts=message.body['thread_ts'] if 'thread_ts' in message.body else None
+    )
+
+
+def _validation_bot_subtype(message):
+    """ボットのメッセージか判定する"""
+    return ('subtype' in message.body) and (message.body['subtype'] == 'bot_message')
+
+
+def _add_bot_message_subtype(message):
+    """ボットのメッセージだとわかるように判別をつける"""
     message.body['subtype'] = 'bot_message'
     return message
 
 
-def validation_bot_subtype(message):
-    """ ボットのメッセージか判定する """
-    if 'subtype' in message.body and message.body['subtype'] == 'bot_message':
-        return True
-    return False
+def _create_random_element_list(path, user_num):
+    """メッセージの元ファイルを読み出して、ユーザー数分のテキストリストをランダムに生成する"""
+    # TODO:コメント生成時に毎回csvファイルを読み込んでいるので、bot.py読み出し時に読みだすようにする。
+    with open(path, newline='') as csvfile:
+        text_list = [s[0] for s in csv.reader(csvfile)]
+
+    random.shuffle(text_list)
+
+    # メンションされたユーザー数 ＞ テキスト数の場合、
+    # テキストが足りなくなるため倍数分だけ要素を増やす
+    scale_num = user_num / len(text_list)
+    text_list = text_list if scale_num <= 1 else text_list * math.ceil(scale_num)
+    random.shuffle(text_list)
+    return text_list[:user_num]
 
 
-@listen_to(r'.*@.*@.*')
-def divede_mention(message):
-    """ 複数メンション時にメンションを個々に分けてメッセージを投下 """
+def _extract_users(message):
+    """メッセージからメンションするためのユーザーのリストを抽出する"""
+    splitted_message = re.split(_MENTION_SPLIT_PATTERN, message)
+    print(f'splitted_message:{splitted_message}')
 
-    if validation_bot_subtype(message):
-        return None
+    # TODO:メンションされたユーザーが重複する場合に返答は1回にするかを検討する
+    user_list = []
+    for words in splitted_message:
+        menttioned_user = _EXTRACT_USER_PATTERN.match(words)
+        if menttioned_user is not None:
+            user_list.append(menttioned_user.group())
 
-    message = add_bot_message_subtype(message)
+    return user_list
 
-    # メンション(@hoge.hoge など) は slackID(<@〇〇>)に自動で変換される
-    m = re.compile(r'<@.*>')
-    text = message.body['text']
-    # コピペした場合は' ',スラックでメンションを連続して入力する場合には'\xa0'が引っかかる
-    text_list = re.split('[\xa0| |,|;]', text)
-    # print(text_list)
-    for i in text_list:
-        mo = m.match(i)
-        if mo is not None:
-            mnsmsg = mo.group()
-            message.send(mnsmsg)
+
+def _get_post_message(user_list):
+    """ユーザーをほめるメッセージを生成する"""
+
+    text_list = _create_random_element_list('resources/responce_messages.csv', len(user_list))
+    stamp_list = _create_random_element_list('resources/responce_stamps.csv', len(user_list))
+    post_messages = [f'{u} {t}{s}' for u, t, s in zip(user_list, text_list, stamp_list)]
+
+    return '\n'.join(post_messages)
