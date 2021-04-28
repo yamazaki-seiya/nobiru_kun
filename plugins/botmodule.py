@@ -37,11 +37,8 @@ def _create_random_element_list(path, user_num):
     # メンションされたユーザー数 ＞ テキスト数の場合、
     # テキストが足りなくなるため倍数分だけ要素を増やす
     scale_num = user_num / len(text_list)
-    if scale_num > 1:
-        for i in range(int(scale_num)):
-            text_list += random.sample(text_list, len(text_list))
-
-    return text_list[:user_num]
+    text_list = text_list if scale_num <= 1 else text_list * math.ceil(scale_num)
+    return random.shuffle(text_list)[:user_num]
 
 
 def _extract_users(message):
