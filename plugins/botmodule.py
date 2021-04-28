@@ -12,7 +12,7 @@ OWM_TOKEN = os.getenv('OWM_TOKEN')
 def add_bot_message_subtype(message):
     """ ボットのメッセージだとわかるように判別をつける """
     message.body['subtype'] = 'bot_message'
-    return mess
+    return message
 
 
 def validation_bot_subtype(message):
@@ -42,10 +42,13 @@ def create_homeru_message(user_num):
 def extract_users(message):
     """メッセージからメンションするためのユーザーのリストを抽出する"""
     m = re.compile(r'<@.*>')
-    # コピペした場合は' ',スラックでメンションを連続して入力する場合には'\xa0'が引っかかる
+
+    # コメント内のメンションのsplit_stringとして現状以下のパターンが大多数を占める
+    #   - ' '（半角スペース）, '\xa0'（ノーブレークスペース）
     split_character = '[\xa0| |,|;]'
     splitted_message = re.split(split_character, message)
     print(f'splitted_message:{splitted_message}')
+
     # TODO:メンションされたユーザーが重複する場合に返答は1回にするかを検討する
     user_list = []
     for words in splitted_message:
