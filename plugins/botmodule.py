@@ -7,7 +7,13 @@ import re
 from slackbot.bot import listen_to
 
 _EXTRACT_USER_PATTERN = re.compile(r'<@.*>')
-_MESSAGE_SPLIT_PATTERN = re.compile(r'[\xa0| |,|;]')
+
+# メンションされたユーザーを抽出するための正規表現パターン
+# メンションユーザーの区切り文字としては現状以下のパターンが大多数を占めるが他の文字も考慮した
+#   - 半角スペース、'\xa0'（ノーブレークスペース）
+#
+# 投稿メッセージ例: @user1 @user2,@user3;@user4 messages
+_MENTION_SPLIT_PATTERN = re.compile(r'[\xa0| |,|;]')
 
 
 @listen_to(r'.*@.*')
@@ -64,9 +70,7 @@ def _create_random_element_list(path, user_num):
 
 def _extract_users(message):
     """メッセージからメンションするためのユーザーのリストを抽出する"""
-    # コメント内のメンションのsplit_stringとして現状以下のパターンが大多数を占める
-    #   - ' '（半角スペース）, '\xa0'（ノーブレークスペース）
-    splitted_message = re.split(_MESSAGE_SPLIT_PATTERN, message)
+    splitted_message = re.split(_MENTION_SPLIT_PATTERN, message)
     print(f'splitted_message:{splitted_message}')
 
     # TODO:メンションされたユーザーが重複する場合に返答は1回にするかを検討する
