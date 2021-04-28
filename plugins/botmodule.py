@@ -42,9 +42,7 @@ def homeru_post(message):
 
 def _validation_bot_subtype(message):
     """ボットのメッセージか判定する"""
-    if 'subtype' in message.body and message.body['subtype'] == 'bot_message':
-        return True
-    return False
+    return ('subtype' in message.body) and (message.body['subtype'] == 'bot_message')
 
 
 def _add_bot_message_subtype(message):
