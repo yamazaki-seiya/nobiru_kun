@@ -84,8 +84,8 @@ def _extract_users(message):
 def _get_post_message(user_list):
     """ユーザーをほめるメッセージを生成する"""
 
-    text_list = _create_random_element_list('resources/homeru_message_text.csv', len(user_list))
-    stamp_list = _create_random_element_list('resources/homeru_message_stamp.csv', len(user_list))
+    text_list = _create_random_element_list('resources/responce_messages.csv', len(user_list))
+    stamp_list = _create_random_element_list('resources/responce_stamps.csv', len(user_list))
     post_messages = [f'{u} {t}{s}' for u, t, s in zip(user_list, text_list, stamp_list)]
 
-    return '\n\n'.join(post_messages)
+    return '\n'.join(post_messages)
