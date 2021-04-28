@@ -23,13 +23,15 @@ def validation_bot_subtype(message):
 
 
 def _create_random_element_list(path, user_num):
-    """メッセージの元ファイルを読み出して、ランダムなユーザー数分のテキストリストを生成する"""
+    """メッセージの元ファイルを読み出して、ユーザー数分のテキストリストをランダムに生成する"""
+    # TODO:コメント生成時に毎回csvファイルを読み込んでいるので、bot.py読み出し時に読みだすようにする。
     with open(path, newline='') as csvfile:
         text_list = [s[0] for s in csv.reader(csvfile)]
 
     random.shuffle(text_list)
 
-    # 倍数分だけテキストリストの要素を増やす
+    # メンションされたユーザー数 ＞ テキスト数の場合、
+    # テキストが足りなくなるため倍数分だけ要素を増やす
     scale_num = user_num / len(text_list)
     if scale_num > 1:
         for i in range(int(scale_num)):
