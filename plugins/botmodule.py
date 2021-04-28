@@ -1,4 +1,5 @@
 import csv
+import math
 import os
 import random
 import re
@@ -7,6 +8,9 @@ from slackbot.bot import listen_to
 
 GCP_TOKEN = os.getenv('GCP_TOKEN')
 OWM_TOKEN = os.getenv('OWM_TOKEN')
+
+_EXTRACT_USER_PATTERN = re.compile(r'<@.*>')
+_MESSAGE_SPLIT_PATTERN = re.compile(r'[\xa0| |,|;]')
 
 
 def add_bot_message_subtype(message):
@@ -42,18 +46,15 @@ def _create_random_element_list(path, user_num):
 
 def _extract_users(message):
     """メッセージからメンションするためのユーザーのリストを抽出する"""
-    extract_user_pattern = re.compile(r'<@.*>')
-
     # コメント内のメンションのsplit_stringとして現状以下のパターンが大多数を占める
     #   - ' '（半角スペース）, '\xa0'（ノーブレークスペース）
-    split_pattern = r'[\xa0| |,|;]'
-    splitted_message = re.split(split_pattern, message)
+    splitted_message = re.split(_MESSAGE_SPLIT_PATTERN, message)
     print(f'splitted_message:{splitted_message}')
 
     # TODO:メンションされたユーザーが重複する場合に返答は1回にするかを検討する
     user_list = []
     for words in splitted_message:
-        menttioned_user = extract_user_pattern.match(words)
+        menttioned_user = _EXTRACT_USER_PATTERN.match(words)
         if menttioned_user is not None:
             user_list.append(menttioned_user.group())
 
