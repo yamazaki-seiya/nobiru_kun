@@ -13,17 +13,41 @@ _EXTRACT_USER_PATTERN = re.compile(r'<@.*>')
 _MESSAGE_SPLIT_PATTERN = re.compile(r'[\xa0| |,|;]')
 
 
-def add_bot_message_subtype(message):
-    """ボットのメッセージだとわかるように判別をつける"""
-    message.body['subtype'] = 'bot_message'
-    return message
+@listen_to(r'.*@.*')
+def homeru_post(message):
+    """
+    メンション付きの投稿がされた場合に、メッセージ内のメンションされた人をほめる機能
+    """
+
+    _validation_bot_subtype(message)
+
+    # このボットの投稿に反応しないようにする
+    _add_bot_message_subtype(message)
+
+    text = message.body['text']
+    print(f'ポストされたメッセージ: {text}')
+    user_list = _extract_users(text)
+    print(f'user_num: {len(user_list)}')
+
+    post_message = _get_post_message(user_list)
+
+    # スレッド内のユーザーの返信に、スレッドの外で反応すると会話の流れがわかりにくいため
+    message.send(
+        post_message, thread_ts=message.body['thread_ts'] if 'thread_ts' in message.body else None
+    )
 
 
-def validation_bot_subtype(message):
+def _validation_bot_subtype(message):
     """ボットのメッセージか判定する"""
     if 'subtype' in message.body and message.body['subtype'] == 'bot_message':
         return True
     return False
+
+
+def _add_bot_message_subtype(message):
+    """ボットのメッセージだとわかるように判別をつける"""
+    message.body['subtype'] = 'bot_message'
+    return message
 
 
 def _create_random_element_list(path, user_num):
@@ -66,27 +90,3 @@ def _get_post_message(user_list):
     post_messages = [f'{u} {t}{s}' for u, t, s in zip(user_list, text_list, stamp_list)]
 
     return '\n\n'.join(post_messages)
-
-
-@listen_to(r'.*@.*')
-def homeru_post(message):
-    """
-    メンション付きの投稿がされた場合に、メッセージ内のメンションされた人をほめる機能
-    """
-
-    validation_bot_subtype(message)
-
-    # このボットの投稿に反応しないようにする
-    add_bot_message_subtype(message)
-
-    text = message.body['text']
-    print(f'ポストされたメッセージ: {text}')
-    user_list = _extract_users(text)
-    print(f'user_num: {len(user_list)}')
-
-    post_message = _get_post_message(user_list)
-
-    # スレッド内のユーザーの返信に、スレッドの外で反応すると会話の流れがわかりにくいため
-    message.send(
-        post_message, thread_ts=message.body['thread_ts'] if 'thread_ts' in message.body else None
-    )
