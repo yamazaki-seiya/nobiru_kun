@@ -22,7 +22,7 @@ def validation_bot_subtype(message):
     return False
 
 
-def create_random_element_list(path, user_num):
+def _create_random_element_list(path, user_num):
     """メッセージの元ファイルを読み出して、ランダムなユーザー数分のテキストリストを生成する"""
     with open(path, newline='') as csvfile:
         text_list = [s[0] for s in csv.reader(csvfile)]
@@ -38,7 +38,7 @@ def create_random_element_list(path, user_num):
     return text_list[:user_num]
 
 
-def extract_users(message):
+def _extract_users(message):
     """メッセージからメンションするためのユーザーのリストを抽出する"""
     regex_patten = re.compile(r'<@.*>')
 
@@ -71,15 +71,16 @@ def homeru_post(message):
 
     text = message.body['text']
     print(f'ポストされたメッセージ: {text}')
-    user_list = extract_users(text)
-    homeru_text_list = create_random_element_list(
+    user_list = _extract_users(text)
+    print(f'user_num: {len(user_list)}')
+
+    homeru_text_list = _create_random_element_list(
         'resources/homeru_message_text.csv', len(user_list)
     )
-    homeru_stamp_list = create_random_element_list(
+    homeru_stamp_list = _create_random_element_list(
         'resources/homeru_message_stamp.csv', len(user_list)
     )
 
-    print(f'user_num: {len(user_list)}')
     for user, text, stamp in zip(user_list, homeru_text_list, homeru_stamp_list):
         # スレッド内のユーザーの返信に、スレッドの外で反応すると会話の流れがわかりにくいため
         if 'thread_ts' in message.body:
