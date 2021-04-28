@@ -10,13 +10,13 @@ OWM_TOKEN = os.getenv('OWM_TOKEN')
 
 
 def add_bot_message_subtype(message):
-    """ ボットのメッセージだとわかるように判別をつける """
+    """ボットのメッセージだとわかるように判別をつける"""
     message.body['subtype'] = 'bot_message'
     return message
 
 
 def validation_bot_subtype(message):
-    """ ボットのメッセージか判定する """
+    """ボットのメッセージか判定する"""
     if 'subtype' in message.body and message.body['subtype'] == 'bot_message':
         return True
     return False
