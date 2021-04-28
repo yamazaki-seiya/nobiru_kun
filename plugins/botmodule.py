@@ -64,7 +64,10 @@ def homeru_post(message):
     メンション付きの投稿がされた場合に、メッセージ内のメンションされた人をほめる機能
     """
 
-    # TODO: validationする
+    validation_bot_subtype(message)
+
+    # このボットの投稿に反応しないようにする
+    add_bot_message_subtype(message)
 
     text = message.body['text']
     print(f'ポストされたメッセージ: {text}')
