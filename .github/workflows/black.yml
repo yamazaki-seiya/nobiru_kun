@@ -28,3 +28,4 @@ jobs:
           reporter: github-check
           black_args: "--line-length 100 --skip-string-normalization"
           fail_on_error: true
+          tools_name: black
