@@ -8,6 +8,7 @@ services:
         WORKDIR: /homeru_bot
     volumes:
       - .:/homeru_bot
+      - ${USERPROFILE-~}/.ssh:/home/vscode/.ssh
     image: homeru_bot-image
     container_name: homeru_bot-container
     tty: true
