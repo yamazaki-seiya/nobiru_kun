@@ -3,81 +3,113 @@ import os
 import re
 from datetime import timedelta
 
-from slack_sdk import WebClient
-from slack_sdk.errors import SlackApiError
+from slack_sdk import WebClient  # type : ignore
+from slack_sdk.errors import SlackApiError  # type : ignore
+
+SLACK_TOKEN = os.environ['SLACK_TOKEN']
+CHANNEL_ID = os.environ['CHANNEL_ID']
+CLIENT = WebClient(token=SLACK_TOKEN)
 
 
-def main():
+def get_posts_w_reaction(trace_back_days: int = 7):
+    """実行日から過去days（default 7）日間のリアクション付き投稿を1投稿1辞書型のリストとして取得する"""
+
+    oldest_day = datetime.datetime.now() - timedelta(days=trace_back_days)
+    extracted_posts = []
+
+    # 実行日からtrace_back_days日前までの投稿を取得
+    result = CLIENT.conversations_history(
+        channel=CHANNEL_ID, oldest=oldest_day.timestamp(), limit=100000
+    )
+    extracted_posts = result['messages']
+
+    print(f'{len(extracted_posts)} messages found')
+
+    # リアクションされた投稿のみを抽出
+    extracted_posts_w_reaction = [
+        {'ts': d['ts'], 'text': d['text'], 'reactions': d['reactions'], 'user': d['user']}
+        for d in extracted_posts
+        if 'reactions' in d.keys()
+    ]
+
+    # リアクションの数を投稿ごとに集計
+    for post in extracted_posts_w_reaction:
+        cnt = 0
+        for reaction in post['reactions']:
+            cnt += reaction['count']
+        post['reactions'] = cnt
+
+    return extracted_posts_w_reaction
+
+
+def extract_most_reacted_posts(trace_back_days: int = 7):
+    """リアクション付き投稿リストのうちで最もリアクション数の多かった投稿を抽出する"""
+    posts_w_reaction = get_posts_w_reaction(trace_back_days)
+    max_reaction_cnt = max([d.get('reactions') for d in posts_w_reaction])
+    most_reacted_posts = [
+        post for post in posts_w_reaction if post['reactions'] == max_reaction_cnt
+    ]
+    return most_reacted_posts
+
+
+def get_post_link(ts):
+    """tsの一致する投稿のリンクを取得する"""
+    chat = CLIENT.chat_getPermalink(token=SLACK_TOKEN, channel=CHANNEL_ID, message_ts=ts)
+    return chat
+
+
+def get_homember_list(message: str):
+    """投稿内でメンションされているユーザのリストを取得"""
+    m = re.compile(r'<@.*>')
+    text_list = re.split(r'[\xa0| |,|;]', message)
+
+    homember_list = [m.match(name).group() for name in text_list if m.match(name) is not None]
+    return homember_list
+
+
+def _post_start_message():
+    """レポート最初のコメントを投稿する"""
+    CLIENT.chat_postMessage(
+        channel=CHANNEL_ID,
+        text='先週もようがんばったな:kissing_cat:ノビルくんの弟からウィークリーレポートのお知らせやで～\n'
+        + '先週みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:\n',
+    )
+
+
+def _post_award_message(post: dict):
+    """最もリアクションが多かった投稿をしたユーザ、メンションされたユーザ、投稿へのリンクを投稿する"""
+    chat = get_post_link(post['ts'])
+    homember_list = get_homember_list(post['text'])
+
+    CLIENT.chat_postMessage(
+        channel=CHANNEL_ID,
+        text=f'最もリアクションの多かった褒めをした人：<@{post["user"]}>\n'
+        + f'最も褒められたメンバー：{", ".join(homember_list)}\n'
+        + f'{chat["permalink"]}\n',
+    )
+
+    CLIENT.chat_postMessage(channel=CHANNEL_ID, text=f'{chat["permalink"]}\n')
+
+
+def _post_end_message():
+    """レポートを締めるコメントを投稿する"""
+    CLIENT.chat_postMessage(channel=CHANNEL_ID, text='今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！')
+
+
+def post_award_best_home_weekly():
     """実行日から過去7日間の投稿を取得し最もリアクションの多かった投稿を表彰する"""
-    oldest_day = datetime.datetime.now() - timedelta(days=7)
-    slack_token = os.environ.get('SLACK_TOKEN')
-    channel_id = os.environ['CHANNEL_ID']
-    client = WebClient(token=slack_token)
-    conversation_history = []
-
     try:
-        # コードの実行日から7日前までの投稿を取得, リアクションの総数を集計する
-        result = client.conversations_history(
-            channel=channel_id, oldest=oldest_day.timestamp(), limit=100000
-        )
+        most_reacted_posts = extract_most_reacted_posts(trace_back_days=7)
+        _post_start_message()
 
-        conversation_history = result['messages']
-        print(f'{len(conversation_history)} messages found')
+        for post in most_reacted_posts:
+            _post_award_message(post)
 
-        conversation_history = [
-            {'ts': d['ts'], 'text': d['text'], 'reactions': d['reactions'], 'user': d['user']}
-            for d in conversation_history
-            if 'reactions' in d.keys()
-        ]
-
-        for d in conversation_history:
-            cnt = 0
-            for s in d['reactions']:
-                cnt += s['count']
-            d['reactions'] = cnt
-
-        # リアクションの総数が最も多かった投稿を取得
-        max_reaction_cnt = max([d.get('reactions') for d in conversation_history])
-        best_comments_lst = [d for d in conversation_history if d['reactions'] == max_reaction_cnt]
-
-        # リアクションの総数が最も多かった投稿を表彰するポストを投稿
-        chat = None
-        for cnt, best_comment in enumerate(best_comments_lst):
-            print(cnt, best_comment)
-            chat = client.chat_getPermalink(
-                token=slack_token,
-                channel=channel_id,
-                message_ts=best_comment['ts'],  # type: ignore
-            )
-
-            m = re.compile(r'<@.*>')
-            text_list = re.split(r'[\xa0| |,|;]', best_comment['text'])  # type: ignore
-
-            homember_list = [
-                m.match(name).group() for name in text_list if m.match(name) is not None
-            ]
-
-            if cnt == 0:
-                client.chat_postMessage(
-                    channel=channel_id,
-                    text='先週もようがんばったな:kissing_cat:ノビルくんの弟からウィークリーレポートのお知らせやで～\n'
-                    + '先週みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:\n',
-                )
-
-            client.chat_postMessage(
-                channel=channel_id,
-                text=f'最もリアクションの多かった褒めをした人：<@{best_comment["user"]}>\n'
-                + f'最も褒められたメンバー：{", ".join(homember_list)}\n'
-                + f'{chat["permalink"]}\n',
-            )
-
-            client.chat_postMessage(channel=channel_id, text=f'{chat["permalink"]}\n')
-
-        client.chat_postMessage(channel=channel_id, text='今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！')
+        _post_end_message()
 
     except SlackApiError as e:
         print('Error creating conversation: {}'.format(e))
 
 
 if __name__ == '__main__':
-    main()
+    post_award_best_home_weekly()
