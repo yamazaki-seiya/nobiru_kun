@@ -3,65 +3,61 @@ import os
 import re
 from datetime import timedelta
 
-import pandas as pd
-from dotenv import load_dotenv
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-'''
-TODO
-1.　月次集計を作る
-2.　期末集計を作る
-'''
-
 
 def main():
-    load_dotenv()
-    d = datetime.datetime.now() - timedelta(days=7)
-    client = WebClient(token=os.environ.get('SLACK_TOKEN'))
-    conversation_history = []
+    """実行日から過去7日間の投稿を取得し最もリアクションの多かった投稿を表彰する"""
+    oldest_day = datetime.datetime.now() - timedelta(days=7)
+    slack_token = os.environ.get('SLACK_TOKEN')
     channel_id = os.environ['CHANNEL_ID']
+    client = WebClient(token=slack_token)
+    conversation_history = []
 
     try:
+        # コードの実行日から7日前までの投稿を取得, リアクションの総数を集計する
         result = client.conversations_history(
-            channel=channel_id, oldest=d.timestamp(), limit=100000
+            channel=channel_id, oldest=oldest_day.timestamp(), limit=100000
         )
 
         conversation_history = result['messages']
-
-        print('{} messages found in {}'.format(len(conversation_history), id))
+        print(f'{len(conversation_history)} messages found')
 
         conversation_history = [
-            {'ts': i['ts'], 'text': i['text'], 'reactions': i['reactions'], 'user': i['user']}
-            for i in conversation_history
-            if 'reactions' in i.keys()
+            {'ts': d['ts'], 'text': d['text'], 'reactions': d['reactions'], 'user': d['user']}
+            for d in conversation_history
+            if 'reactions' in d.keys()
         ]
 
-        for i in conversation_history:
+        for d in conversation_history:
             cnt = 0
-            for s in i['reactions']:
+            for s in d['reactions']:
                 cnt += s['count']
-            i['reactions'] = cnt
+            d['reactions'] = cnt
 
-        conversation_history = pd.DataFrame(conversation_history)
+        # リアクションの総数が最も多かった投稿を取得
+        max_reaction_cnt = max([d.get('reactions') for d in conversation_history])
+        best_comments_lst = [d for d in conversation_history if d['reactions'] == max_reaction_cnt]
 
-        df_best_comments = conversation_history[
-            conversation_history.reactions == conversation_history.reactions.max()
-        ].reset_index()
-
+        # リアクションの総数が最も多かった投稿を表彰するポストを投稿
         chat = None
-        for idx, row in df_best_comments.iterrows():
+        for cnt, best_comment in enumerate(best_comments_lst):
+            print(cnt, best_comment)
             chat = client.chat_getPermalink(
-                token=os.environ.get('SLACK_TOKEN'),
+                token=slack_token,
                 channel=channel_id,
-                message_ts=row['ts'],  # type: ignore
+                message_ts=best_comment['ts'],  # type: ignore
             )
 
             m = re.compile(r'<@.*>')
-            text_list = re.split(r'[\xa0| |,|;]', row['text'])  # type: ignore
-            homember_list = [m.match(name).group() for name in text_list]  # if m.match(name) !=
+            text_list = re.split(r'[\xa0| |,|;]', best_comment['text'])  # type: ignore
 
-            if idx == 0:
+            homember_list = [
+                m.match(name).group() for name in text_list if m.match(name) is not None
+            ]
+
+            if cnt == 0:
                 client.chat_postMessage(
                     channel=channel_id,
                     text='先週もようがんばったな:kissing_cat:ノビルくんの弟からウィークリーレポートのお知らせやで～\n'
@@ -70,7 +66,7 @@ def main():
 
             client.chat_postMessage(
                 channel=channel_id,
-                text=f'最もリアクションの多かった褒めをした人：<@{row["user"]}>\n'
+                text=f'最もリアクションの多かった褒めをした人：<@{best_comment["user"]}>\n'
                 + f'最も褒められたメンバー：{", ".join(homember_list)}\n'
                 + f'{chat["permalink"]}\n',
             )
