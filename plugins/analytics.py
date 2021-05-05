@@ -11,7 +11,7 @@ CHANNEL_ID = os.environ['CHANNEL_ID']
 CLIENT = WebClient(token=SLACK_TOKEN)
 
 
-def get_posts_w_reaction(trace_back_days: int = 7):
+def _get_posts_w_reaction(trace_back_days: int = 7):
     """実行日から過去days（default 7）日間のリアクション付き投稿を1投稿1辞書型のリストとして取得する"""
 
     oldest_day = datetime.datetime.now() - timedelta(days=trace_back_days)
@@ -22,7 +22,6 @@ def get_posts_w_reaction(trace_back_days: int = 7):
         channel=CHANNEL_ID, oldest=oldest_day.timestamp(), limit=100000
     )
     extracted_posts = result['messages']
-
     print(f'{len(extracted_posts)} messages found')
 
     # リアクションされた投稿のみを抽出
@@ -42,9 +41,9 @@ def get_posts_w_reaction(trace_back_days: int = 7):
     return extracted_posts_w_reaction
 
 
-def extract_most_reacted_posts(trace_back_days: int = 7):
+def _extract_most_reacted_posts(trace_back_days: int = 7):
     """リアクション付き投稿リストのうちで最もリアクション数の多かった投稿を抽出する"""
-    posts_w_reaction = get_posts_w_reaction(trace_back_days)
+    posts_w_reaction = _get_posts_w_reaction(trace_back_days)
     max_reaction_cnt = max([d.get('reactions') for d in posts_w_reaction])
     most_reacted_posts = [
         post for post in posts_w_reaction if post['reactions'] == max_reaction_cnt
@@ -52,13 +51,13 @@ def extract_most_reacted_posts(trace_back_days: int = 7):
     return most_reacted_posts
 
 
-def get_post_link(ts):
-    """tsの一致する投稿のリンクを取得する"""
+def _get_post_link(ts):
+    """ts(timestamp)の一致する投稿のリンクを取得する"""
     chat = CLIENT.chat_getPermalink(token=SLACK_TOKEN, channel=CHANNEL_ID, message_ts=ts)
     return chat
 
 
-def get_homember_list(message: str):
+def _get_homember_list(message: str):
     """投稿内でメンションされているユーザのリストを取得"""
     m = re.compile(r'<@.*>')
     text_list = re.split(r'[\xa0| |,|;]', message)
@@ -78,8 +77,8 @@ def _post_start_message():
 
 def _post_award_message(post: dict):
     """最もリアクションが多かった投稿をしたユーザ、メンションされたユーザ、投稿へのリンクを投稿する"""
-    chat = get_post_link(post['ts'])
-    homember_list = get_homember_list(post['text'])
+    chat = _get_post_link(post['ts'])
+    homember_list = _get_homember_list(post['text'])
 
     CLIENT.chat_postMessage(
         channel=CHANNEL_ID,
@@ -99,7 +98,7 @@ def _post_end_message():
 def post_award_best_home_weekly():
     """実行日から過去7日間の投稿を取得し最もリアクションの多かった投稿を表彰する"""
     try:
-        most_reacted_posts = extract_most_reacted_posts(trace_back_days=7)
+        most_reacted_posts = _extract_most_reacted_posts(trace_back_days=7)
         _post_start_message()
 
         for post in most_reacted_posts:
