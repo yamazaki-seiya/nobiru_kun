@@ -76,7 +76,7 @@ def _post_start_message() -> None:
     message = """
         先週もようがんばったな:kissing_cat:ノビルくんの弟からウィークリーレポートのお知らせやで～
         先週みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:
-    """
+    """  # noqa: Q001
     _post_message(inspect.cleandoc(message))
 
 
@@ -88,13 +88,13 @@ def _post_award_message(post: dict) -> None:
         最もリアクションの多かった褒めをした人：<@{post["user"]}>
         最も褒められたメンバー：{", ".join(homember_list)}
         {chat_link}
-    """
+    """  # noqa: Q001
     _post_message(inspect.cleandoc(message))
 
 
 def _post_end_message() -> None:
     """レポートを締めるコメントを投稿する"""
-    message = """今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！"""
+    message = """今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！"""  # noqa: Q001
     _post_message(inspect.cleandoc(message))
 
 
@@ -115,9 +115,3 @@ def post_award_best_home_weekly() -> None:
 
 if __name__ == '__main__':
     post_award_best_home_weekly()
-
-
-message = (
-    '先週もようがんばったな:kissing_cat:ノビルくんの弟からウィークリーレポートのお知らせやで～\n'
-    + '先週みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:\n'
-)
