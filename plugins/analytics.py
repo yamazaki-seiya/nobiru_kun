@@ -3,15 +3,15 @@ import os
 import re
 from datetime import timedelta
 
-from slack_sdk import WebClient  # type : ignore
-from slack_sdk.errors import SlackApiError  # type : ignore
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
 
 SLACK_TOKEN = os.environ['SLACK_TOKEN']
 CHANNEL_ID = os.environ['CHANNEL_ID']
 CLIENT = WebClient(token=SLACK_TOKEN)
 
 
-def _get_posts_w_reaction(trace_back_days: int = 7):
+def _get_posts_w_reaction(trace_back_days: int = 7) -> list:
     """実行日から過去days（default 7）日間のリアクション付き投稿を1投稿1辞書型のリストとして取得する"""
 
     oldest_day = datetime.datetime.now() - timedelta(days=trace_back_days)
@@ -41,7 +41,7 @@ def _get_posts_w_reaction(trace_back_days: int = 7):
     return extracted_posts_w_reaction
 
 
-def _extract_most_reacted_posts(trace_back_days: int = 7):
+def _extract_most_reacted_posts(trace_back_days: int = 7) -> list:
     """リアクション付き投稿リストのうちで最もリアクション数の多かった投稿を抽出する"""
     posts_w_reaction = _get_posts_w_reaction(trace_back_days)
     max_reaction_cnt = max([d.get('reactions') for d in posts_w_reaction])
@@ -51,13 +51,14 @@ def _extract_most_reacted_posts(trace_back_days: int = 7):
     return most_reacted_posts
 
 
-def _get_post_link(ts):
+def _get_post_link(ts: str) -> str:
     """ts(timestamp)の一致する投稿のリンクを取得する"""
     chat = CLIENT.chat_getPermalink(token=SLACK_TOKEN, channel=CHANNEL_ID, message_ts=ts)
-    return chat
+    chat_link = chat['permalink']
+    return chat_link
 
 
-def _get_homember_list(message: str):
+def _get_homember_list(message: str) -> list:
     """投稿内でメンションされているユーザのリストを取得"""
     m = re.compile(r'<@.*>')
     text_list = re.split(r'[\xa0| |,|;]', message)
@@ -66,7 +67,7 @@ def _get_homember_list(message: str):
     return homember_list
 
 
-def _post_start_message():
+def _post_start_message() -> None:
     """レポート最初のコメントを投稿する"""
     CLIENT.chat_postMessage(
         channel=CHANNEL_ID,
@@ -75,27 +76,27 @@ def _post_start_message():
     )
 
 
-def _post_award_message(post: dict):
+def _post_award_message(post: dict) -> None:
     """最もリアクションが多かった投稿をしたユーザ、メンションされたユーザ、投稿へのリンクを投稿する"""
-    chat = _get_post_link(post['ts'])
+    chat_link = _get_post_link(post['ts'])
     homember_list = _get_homember_list(post['text'])
 
     CLIENT.chat_postMessage(
         channel=CHANNEL_ID,
         text=f'最もリアクションの多かった褒めをした人：<@{post["user"]}>\n'
         + f'最も褒められたメンバー：{", ".join(homember_list)}\n'
-        + f'{chat["permalink"]}\n',
+        + f'{chat_link}\n',
     )
 
-    CLIENT.chat_postMessage(channel=CHANNEL_ID, text=f'{chat["permalink"]}\n')
+    CLIENT.chat_postMessage(channel=CHANNEL_ID, text=f'{chat_link}\n')
 
 
-def _post_end_message():
+def _post_end_message() -> None:
     """レポートを締めるコメントを投稿する"""
     CLIENT.chat_postMessage(channel=CHANNEL_ID, text='今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！')
 
 
-def post_award_best_home_weekly():
+def post_award_best_home_weekly() -> None:
     """実行日から過去7日間の投稿を取得し最もリアクションの多かった投稿を表彰する"""
     try:
         most_reacted_posts = _extract_most_reacted_posts(trace_back_days=7)
