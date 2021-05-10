@@ -1,4 +1,5 @@
 import datetime
+import inspect
 import os
 import re
 from datetime import timedelta
@@ -72,29 +73,29 @@ def _post_message(message: str) -> None:
 
 def _post_start_message() -> None:
     """レポート最初のコメントを投稿する"""
-    message = (
-        '先週もようがんばったな:kissing_cat:ノビルくんの弟からウィークリーレポートのお知らせやで～\n'
-        + '先週みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:\n'
-    )
-    _post_message(message)
+    message = """
+        先週もようがんばったな:kissing_cat:ノビルくんの弟からウィークリーレポートのお知らせやで～
+        先週みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:
+    """
+    _post_message(inspect.cleandoc(message))
 
 
 def _post_award_message(post: dict) -> None:
     """最もリアクションが多かった投稿をしたユーザ、メンションされたユーザ、投稿へのリンクを投稿する"""
     chat_link = _get_post_link(post['ts'])
     homember_list = _get_homember_list(post['text'])
-    message = (
-        f'最もリアクションの多かった褒めをした人：<@{post["user"]}>\n'
-        + f'最も褒められたメンバー：{", ".join(homember_list)}\n'
-        + f'{chat_link}\n'
-    )
-    _post_message(message)
+    message = f"""
+        最もリアクションの多かった褒めをした人：<@{post["user"]}>
+        最も褒められたメンバー：{", ".join(homember_list)}
+        {chat_link}
+    """
+    _post_message(inspect.cleandoc(message))
 
 
 def _post_end_message() -> None:
     """レポートを締めるコメントを投稿する"""
-    text = '今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！'
-    _post_message(text)
+    message = """今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！"""
+    _post_message(inspect.cleandoc(message))
 
 
 def post_award_best_home_weekly() -> None:
@@ -114,3 +115,9 @@ def post_award_best_home_weekly() -> None:
 
 if __name__ == '__main__':
     post_award_best_home_weekly()
+
+
+message = (
+    '先週もようがんばったな:kissing_cat:ノビルくんの弟からウィークリーレポートのお知らせやで～\n'
+    + '先週みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:\n'
+)
