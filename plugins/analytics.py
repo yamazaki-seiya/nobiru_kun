@@ -29,7 +29,7 @@ def _get_posts_w_reaction(trace_back_days: int = 7) -> list:
         {
             'ts': post['ts'],
             'text': post['text'],
-            'reactions_cnt': sum(reaction.get('count') for reaction in post['reactions']),
+            'reactions_cnt': sum(reaction['count'] for reaction in post['reactions']),
             'user': post['user'],
         }
         for post in extracted_posts
@@ -43,7 +43,7 @@ def _get_posts_w_reaction(trace_back_days: int = 7) -> list:
 def _extract_most_reacted_posts(trace_back_days: int = 7) -> list:
     """リアクション付き投稿リストのうちで最もリアクション数の多かった投稿を抽出する"""
     posts_w_reaction = _get_posts_w_reaction(trace_back_days)
-    max_reaction_cnt = max([post.get('reactions_cnt') for post in posts_w_reaction])
+    max_reaction_cnt = max([post['reactions_cnt'] for post in posts_w_reaction])
     most_reacted_posts = [
         post for post in posts_w_reaction if post['reactions_cnt'] == max_reaction_cnt
     ]
@@ -51,7 +51,7 @@ def _extract_most_reacted_posts(trace_back_days: int = 7) -> list:
 
 
 def _get_post_link(ts: str) -> str:
-    """ts(timestamp)の一致する投稿のリンクを取得する"""
+    """tsの一致する投稿のリンクを取得する"""
     chat = CLIENT.chat_getPermalink(token=SLACK_TOKEN, channel=CHANNEL_ID, message_ts=ts)
     chat_link = chat['permalink']
     return chat_link
