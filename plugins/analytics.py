@@ -26,9 +26,14 @@ def _get_posts_w_reaction(trace_back_days: int = 7) -> list:
 
     # リアクションされた投稿のみを抽出
     extracted_posts_w_reaction = [
-        {'ts': d['ts'], 'text': d['text'], 'reactions': d['reactions'], 'user': d['user']}
-        for d in extracted_posts
-        if 'reactions' in d.keys()
+        {
+            'ts': post['ts'],
+            'text': post['text'],
+            'reactions': post['reactions'],
+            'user': post['user'],
+        }
+        for post in extracted_posts
+        if 'reactions' in post.keys()
     ]
 
     # リアクションの数を投稿ごとに集計
@@ -44,7 +49,7 @@ def _get_posts_w_reaction(trace_back_days: int = 7) -> list:
 def _extract_most_reacted_posts(trace_back_days: int = 7) -> list:
     """リアクション付き投稿リストのうちで最もリアクション数の多かった投稿を抽出する"""
     posts_w_reaction = _get_posts_w_reaction(trace_back_days)
-    max_reaction_cnt = max([d.get('reactions') for d in posts_w_reaction])
+    max_reaction_cnt = max([post.get('reactions') for post in posts_w_reaction])
     most_reacted_posts = [
         post for post in posts_w_reaction if post['reactions'] == max_reaction_cnt
     ]
