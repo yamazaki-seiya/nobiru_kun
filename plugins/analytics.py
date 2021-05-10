@@ -11,7 +11,7 @@ CHANNEL_ID = os.environ['CHANNEL_ID']
 CLIENT = WebClient(token=SLACK_TOKEN)
 
 
-def _get_posts_w_reaction(trace_back_days: int = 7) -> list:
+def _get_posts_w_reaction(trace_back_days: int) -> list:
     """実行日から過去days（default 7）日間のリアクション付き投稿を1投稿1辞書型のリストとして取得する"""
 
     oldest_day = datetime.datetime.now() - timedelta(days=trace_back_days)
@@ -40,7 +40,7 @@ def _get_posts_w_reaction(trace_back_days: int = 7) -> list:
     return extracted_posts_w_reaction
 
 
-def _extract_most_reacted_posts(trace_back_days: int = 7) -> list:
+def _extract_most_reacted_posts(trace_back_days: int) -> list:
     """リアクション付き投稿リストのうちで最もリアクション数の多かった投稿を抽出する"""
     posts_w_reaction = _get_posts_w_reaction(trace_back_days)
     max_reaction_cnt = max([post['reactions_cnt'] for post in posts_w_reaction])
