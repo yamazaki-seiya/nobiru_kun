@@ -65,33 +65,36 @@ def _get_homember_list(message: str) -> list:
     return homember_list
 
 
+def _post_message(message: str) -> None:
+    """CHANNEL_IDのチャンネルにメッセージを送信する"""
+    CLIENT.chat_postMessage(channel=CHANNEL_ID, text=message)
+
+
 def _post_start_message() -> None:
     """レポート最初のコメントを投稿する"""
-    CLIENT.chat_postMessage(
-        channel=CHANNEL_ID,
-        text='先週もようがんばったな:kissing_cat:ノビルくんの弟からウィークリーレポートのお知らせやで～\n'
-        + '先週みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:\n',
+    message = (
+        '先週もようがんばったな:kissing_cat:ノビルくんの弟からウィークリーレポートのお知らせやで～\n'
+        + '先週みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:\n'
     )
+    _post_message(message)
 
 
 def _post_award_message(post: dict) -> None:
     """最もリアクションが多かった投稿をしたユーザ、メンションされたユーザ、投稿へのリンクを投稿する"""
     chat_link = _get_post_link(post['ts'])
     homember_list = _get_homember_list(post['text'])
-
-    CLIENT.chat_postMessage(
-        channel=CHANNEL_ID,
-        text=f'最もリアクションの多かった褒めをした人：<@{post["user"]}>\n'
+    message = (
+        f'最もリアクションの多かった褒めをした人：<@{post["user"]}>\n'
         + f'最も褒められたメンバー：{", ".join(homember_list)}\n'
-        + f'{chat_link}\n',
+        + f'{chat_link}\n'
     )
-
-    CLIENT.chat_postMessage(channel=CHANNEL_ID, text=f'{chat_link}\n')
+    _post_message(message)
 
 
 def _post_end_message() -> None:
     """レポートを締めるコメントを投稿する"""
-    CLIENT.chat_postMessage(channel=CHANNEL_ID, text='今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！')
+    text = '今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！'
+    _post_message(text)
 
 
 def post_award_best_home_weekly() -> None:
