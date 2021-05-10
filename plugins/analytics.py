@@ -53,8 +53,7 @@ def _extract_most_reacted_posts(trace_back_days: int = 7) -> list:
 def _get_post_link(ts: str) -> str:
     """tsの一致する投稿のリンクを取得する"""
     chat = CLIENT.chat_getPermalink(token=SLACK_TOKEN, channel=CHANNEL_ID, message_ts=ts)
-    chat_link = chat['permalink']
-    return chat_link
+    return chat['permalink']
 
 
 def _get_homember_list(message: str) -> list:
