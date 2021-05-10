@@ -5,7 +5,8 @@ import re
 
 from slackbot.bot import listen_to
 
-_EXTRACT_USER_PATTERN = re.compile(r'<@.*>')
+# 複数のユーザーIDが1つの文字列に含まれる場合に、1ユーザーIDずつ分けて抽出するため
+_EXTRACT_USER_PATTERN = re.compile(r'<@[a-zA-Z_0-9]{1,}>')
 
 # メンションされたユーザーを抽出するための正規表現パターン
 # メンションユーザーの区切り文字としては現状以下のパターンが大多数を占めるが他の文字も考慮した
@@ -20,7 +21,6 @@ def homeru_post(message):
     """
     メンション付きの投稿がされた場合に、メッセージ内のメンションされた人をほめる機能
     """
-
     _validation_bot_subtype(message)
 
     # このボットの投稿に反応しないようにする
@@ -74,10 +74,13 @@ def _extract_users(message):
     # TODO:メンションされたユーザーが重複する場合に返答は1回にするかを検討する
     user_list = []
     for words in splitted_message:
-        menttioned_user = _EXTRACT_USER_PATTERN.match(words)
-        if menttioned_user is not None:
-            user_list.append(menttioned_user.group())
-
+        print('words:', words)
+        # メンションユーザーの文字列にマッチする文字列を全て取得するため
+        menttioned_user_list = _EXTRACT_USER_PATTERN.findall(words)
+        print('menttioned_user_list:', menttioned_user_list)
+        for menttioned_user in menttioned_user_list:
+            user_list.append(menttioned_user)
+    print('user_list:', user_list)
     return user_list
 
 
