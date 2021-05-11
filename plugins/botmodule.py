@@ -8,13 +8,6 @@ from slackbot.bot import listen_to
 # 複数のユーザーIDが1つの文字列に含まれる場合に、1ユーザーIDずつ分けて抽出するため
 _EXTRACT_USER_PATTERN = re.compile(r'<@\w+>')
 
-# メンションされたユーザーを抽出するための正規表現パターン
-# メンションユーザーの区切り文字としては現状以下のパターンが大多数を占めるが他の文字も考慮した
-#   - 半角スペース、'\xa0'（ノーブレークスペース）
-#
-# 投稿メッセージ例: @user1 @user2,@user3;@user4 messages
-_MENTION_SPLIT_PATTERN = re.compile(r'[\xa0| |,|;]')
-
 
 @listen_to(r'.*@.*')
 def homeru_post(message):
@@ -68,19 +61,11 @@ def _create_random_element_list(path, user_num):
 
 def _extract_users(message):
     """メッセージからメンションするためのユーザーのリストを抽出する"""
-    splitted_message = re.split(_MENTION_SPLIT_PATTERN, message)
-    print(f'splitted_message:{splitted_message}')
 
     # TODO:メンションされたユーザーが重複する場合に返答は1回にするかを検討する
-    user_list = []
-    for words in splitted_message:
-        print('words:', words)
-        # メンションユーザーの文字列にマッチする文字列を全て取得するため
-        menttioned_user_list = _EXTRACT_USER_PATTERN.findall(words)
-        print('menttioned_user_list:', menttioned_user_list)
-        for menttioned_user in menttioned_user_list:
-            user_list.append(menttioned_user)
+    user_list = _EXTRACT_USER_PATTERN.findall(message)
     print('user_list:', user_list)
+
     return user_list
 
 
