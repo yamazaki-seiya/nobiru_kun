@@ -11,6 +11,7 @@ SLACK_TOKEN = os.environ['SLACK_TOKEN']
 CHANNEL_ID = os.environ['CHANNEL_ID']
 CLIENT = WebClient(token=SLACK_TOKEN)
 _TRACE_BACK_DAYS = 7
+_EXTRACT_USER_PATTERN = re.compile(r'<@\w*>')
 
 
 def post_award_best_home_weekly() -> None:
@@ -96,9 +97,7 @@ def _get_post_link(ts: str) -> str:
 
 def _get_homember_list(message: str) -> list:
     """投稿内でメンションされているユーザのリストを取得"""
-    m = re.compile(r'<@\w*>')
-
-    homember_list = re.findall(m, message)
+    homember_list = re.findall(_EXTRACT_USER_PATTERN, message)
     print(homember_list)
     return homember_list
 
