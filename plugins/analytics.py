@@ -96,10 +96,10 @@ def _get_post_link(ts: str) -> str:
 
 def _get_homember_list(message: str) -> list:
     """投稿内でメンションされているユーザのリストを取得"""
-    m = re.compile(r'<@.*>')
-    text_list = re.split(r'[\xa0| |,|;]', message)
+    m = re.compile(r'<@\w*>')
 
-    homember_list = [m.match(name).group() for name in text_list if m.match(name) is not None]
+    homember_list = re.findall(m, message)
+    print(homember_list)
     return homember_list
 
 
