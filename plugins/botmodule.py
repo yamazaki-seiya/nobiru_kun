@@ -6,7 +6,7 @@ import re
 from slackbot.bot import listen_to
 
 # 複数のユーザーIDが1つの文字列に含まれる場合に、1ユーザーIDずつ分けて抽出するため
-_EXTRACT_USER_PATTERN = re.compile(r'<@[a-zA-Z_0-9]{1,}>')
+_EXTRACT_USER_PATTERN = re.compile(r'<@\w+>')
 
 # メンションされたユーザーを抽出するための正規表現パターン
 # メンションユーザーの区切り文字としては現状以下のパターンが大多数を占めるが他の文字も考慮した
