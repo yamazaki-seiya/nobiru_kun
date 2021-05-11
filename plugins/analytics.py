@@ -10,13 +10,13 @@ from slack_sdk.errors import SlackApiError
 SLACK_TOKEN = os.environ['SLACK_TOKEN']
 CHANNEL_ID = os.environ['CHANNEL_ID']
 CLIENT = WebClient(token=SLACK_TOKEN)
-TRACE_BACK_DAYS = 7
+_TRACE_BACK_DAYS = 7
 
 
 def post_award_best_home_weekly() -> None:
     """実行日から過去7日間の投稿を取得し最もリアクションの多かった投稿を表彰する"""
     try:
-        most_reacted_posts = _extract_most_reacted_posts(TRACE_BACK_DAYS)
+        most_reacted_posts = _extract_most_reacted_posts(_TRACE_BACK_DAYS)
         _post_start_message()
 
         for post in most_reacted_posts:
