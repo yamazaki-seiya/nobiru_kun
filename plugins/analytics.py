@@ -1,6 +1,7 @@
 import datetime
 import inspect
 import os
+import pprint
 import re
 from datetime import timedelta
 
@@ -61,9 +62,9 @@ def _get_posts_with_reaction(trace_back_days: int) -> list:
             'user': post['user'],
         }
         for post in extracted_posts
-        if 'reactions' in post.keys()
+        if ('bot_id' not in post.keys()) & ('reactions' in post.keys())
     ]
-    print(extracted_posts)
+    pprint.pprint(f'extracted_posts_with_reaction:\n{extracted_posts_with_reaction}')
 
     return extracted_posts_with_reaction
 
