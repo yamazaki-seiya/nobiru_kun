@@ -12,7 +12,32 @@ CHANNEL_ID = os.environ['CHANNEL_ID']
 CLIENT = WebClient(token=SLACK_TOKEN)
 
 
-def _get_posts_w_reaction(trace_back_days: int) -> list:
+def post_award_best_home_weekly() -> None:
+    """実行日から過去7日間の投稿を取得し最もリアクションの多かった投稿を表彰する"""
+    try:
+        most_reacted_posts = _extract_most_reacted_posts(trace_back_days=7)
+        _post_start_message()
+
+        for post in most_reacted_posts:
+            _post_award_message(post)
+
+        _post_end_message()
+
+    except SlackApiError as e:
+        print('Error creating conversation: {}'.format(e))
+
+
+def _extract_most_reacted_posts(trace_back_days: int) -> list:
+    """リアクション付き投稿リストのうちで最もリアクション数の多かった投稿を抽出する"""
+    posts_with_reaction = _get_posts_with_reaction(trace_back_days)
+    max_reaction_cnt = max([post['reactions_cnt'] for post in posts_with_reaction])
+    most_reacted_posts = [
+        post for post in posts_with_reaction if post['reactions_cnt'] == max_reaction_cnt
+    ]
+    return most_reacted_posts
+
+
+def _get_posts_with_reaction(trace_back_days: int) -> list:
     """実行日から過去days（default 7）日間のリアクション付き投稿を1投稿1辞書型のリストとして取得する"""
 
     oldest_day = datetime.datetime.now() - timedelta(days=trace_back_days)
@@ -26,7 +51,7 @@ def _get_posts_w_reaction(trace_back_days: int) -> list:
     print(f'{len(extracted_posts)} messages found')
 
     # リアクションされた投稿のみを抽出
-    extracted_posts_w_reaction = [
+    extracted_posts_with_reaction = [
         {
             'ts': post['ts'],
             'text': post['text'],
@@ -38,17 +63,28 @@ def _get_posts_w_reaction(trace_back_days: int) -> list:
     ]
     print(extracted_posts)
 
-    return extracted_posts_w_reaction
+    return extracted_posts_with_reaction
 
 
-def _extract_most_reacted_posts(trace_back_days: int) -> list:
-    """リアクション付き投稿リストのうちで最もリアクション数の多かった投稿を抽出する"""
-    posts_w_reaction = _get_posts_w_reaction(trace_back_days)
-    max_reaction_cnt = max([post['reactions_cnt'] for post in posts_w_reaction])
-    most_reacted_posts = [
-        post for post in posts_w_reaction if post['reactions_cnt'] == max_reaction_cnt
-    ]
-    return most_reacted_posts
+def _post_start_message() -> None:
+    """レポート最初のコメントを投稿する"""
+    message = """
+        先週もようがんばったな:kissing_cat:ノビルくんの弟からウィークリーレポートのお知らせやで～
+        先週みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:
+    """  # noqa: Q001
+    _post_message(message)
+
+
+def _post_award_message(post: dict) -> None:
+    """最もリアクションが多かった投稿をしたユーザ、メンションされたユーザ、投稿へのリンクを投稿する"""
+    chat_link = _get_post_link(post['ts'])
+    homember_list = _get_homember_list(post['text'])
+    message = f"""
+        最もリアクションの多かった褒めをした人：<@{post["user"]}>
+        最も褒められたメンバー：{", ".join(homember_list)}
+        {chat_link}
+    """  # noqa: Q001
+    _post_message(message)
 
 
 def _get_post_link(ts: str) -> str:
@@ -66,51 +102,15 @@ def _get_homember_list(message: str) -> list:
     return homember_list
 
 
-def _post_message(message: str) -> None:
-    """CHANNEL_IDのチャンネルにメッセージを送信する"""
-    CLIENT.chat_postMessage(channel=CHANNEL_ID, text=message)
-
-
-def _post_start_message() -> None:
-    """レポート最初のコメントを投稿する"""
-    message = """
-        先週もようがんばったな:kissing_cat:ノビルくんの弟からウィークリーレポートのお知らせやで～
-        先週みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:
-    """  # noqa: Q001
-    _post_message(inspect.cleandoc(message))
-
-
-def _post_award_message(post: dict) -> None:
-    """最もリアクションが多かった投稿をしたユーザ、メンションされたユーザ、投稿へのリンクを投稿する"""
-    chat_link = _get_post_link(post['ts'])
-    homember_list = _get_homember_list(post['text'])
-    message = f"""
-        最もリアクションの多かった褒めをした人：<@{post["user"]}>
-        最も褒められたメンバー：{", ".join(homember_list)}
-        {chat_link}
-    """  # noqa: Q001
-    _post_message(inspect.cleandoc(message))
-
-
 def _post_end_message() -> None:
     """レポートを締めるコメントを投稿する"""
     message = """今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！"""  # noqa: Q001
-    _post_message(inspect.cleandoc(message))
+    _post_message(message)
 
 
-def post_award_best_home_weekly() -> None:
-    """実行日から過去7日間の投稿を取得し最もリアクションの多かった投稿を表彰する"""
-    try:
-        most_reacted_posts = _extract_most_reacted_posts(trace_back_days=7)
-        _post_start_message()
-
-        for post in most_reacted_posts:
-            _post_award_message(post)
-
-        _post_end_message()
-
-    except SlackApiError as e:
-        print('Error creating conversation: {}'.format(e))
+def _post_message(message: str) -> None:
+    """CHANNEL_IDのチャンネルにメッセージを送信する"""
+    CLIENT.chat_postMessage(channel=CHANNEL_ID, text=inspect.cleandoc(message))
 
 
 if __name__ == '__main__':
