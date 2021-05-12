@@ -111,7 +111,15 @@ def _post_end_message() -> None:
 
 
 def _post_message(message: str) -> None:
-    """CHANNEL_IDのチャンネルにメッセージを送信する"""
+    """
+    CHANNEL_IDのチャンネルにメッセージを送信する
+
+    Args:
+        message: 送信メッセージ
+        メッセージの前後はtrimされる
+        その他空行やタブ文字などがあると変換されるため注意
+        https://docs.python.org/ja/3/library/inspect.html#inspect.cleandoc
+    """  # noqa:Q001
     CLIENT.chat_postMessage(channel=CHANNEL_ID, text=inspect.cleandoc(message))
 
 
