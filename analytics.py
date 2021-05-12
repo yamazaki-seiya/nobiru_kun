@@ -31,7 +31,7 @@ def post_award_best_home_weekly() -> None:
         print('Error creating conversation: {}'.format(e))
 
 
-def _extract_most_reacted_posts(trace_back_days: int) -> list:
+def _extract_most_reacted_posts(trace_back_days: int) -> List[dict]:
     """リアクション付き投稿リストのうちで最もリアクション数の多かった投稿を抽出する"""
     posts_with_reaction = _get_posts_with_reaction(trace_back_days)
     max_reaction_cnt = max([post['reactions_cnt'] for post in posts_with_reaction])
@@ -41,7 +41,7 @@ def _extract_most_reacted_posts(trace_back_days: int) -> list:
     return most_reacted_posts
 
 
-def _get_posts_with_reaction(trace_back_days: int) -> list:
+def _get_posts_with_reaction(trace_back_days: int) -> List[dict]:
     """実行日から過去days（default 7）日間のリアクション付き投稿（botからの投稿は除く）を1投稿1辞書型のリストとして取得する"""
 
     oldest_day = datetime.datetime.now() - timedelta(days=trace_back_days)
@@ -98,7 +98,7 @@ def _get_post_link(ts: str) -> str:
     return chat['permalink']
 
 
-def _get_homember_list(message: str) -> list[str]:
+def _get_homember_list(message: str) -> List[str]:
     """投稿内でメンションされているユーザのリストを取得"""
     homember_list = re.findall(_EXTRACT_USER_PATTERN, message)
     print(homember_list)
