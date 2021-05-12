@@ -4,6 +4,7 @@ import os
 import pprint
 import re
 from datetime import timedelta
+from typing import List
 
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
@@ -97,7 +98,7 @@ def _get_post_link(ts: str) -> str:
     return chat['permalink']
 
 
-def _get_homember_list(message: str) -> list:
+def _get_homember_list(message: str) -> list[str]:
     """投稿内でメンションされているユーザのリストを取得"""
     homember_list = re.findall(_EXTRACT_USER_PATTERN, message)
     print(homember_list)
