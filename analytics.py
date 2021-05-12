@@ -64,7 +64,7 @@ def _get_posts_with_reaction(trace_back_days: int) -> list:
         }
         for post in extracted_posts
         if ('bot_id' not in post.keys())
-        & ('reactions' in post.keys())  # botからの投稿とreactionの内投稿を除外する
+        & ('reactions' in post.keys())  # botからの投稿とreactionのない投稿を除外する
     ]
     pprint.pprint(f'extracted_posts_with_reaction:\n{extracted_posts_with_reaction}')
 
