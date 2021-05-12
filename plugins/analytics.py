@@ -41,7 +41,7 @@ def _extract_most_reacted_posts(trace_back_days: int) -> list:
 
 
 def _get_posts_with_reaction(trace_back_days: int) -> list:
-    """実行日から過去days（default 7）日間のリアクション付き投稿を1投稿1辞書型のリストとして取得する"""
+    """実行日から過去days（default 7）日間のリアクション付き投稿（botからの投稿は除く）を1投稿1辞書型のリストとして取得する"""
 
     oldest_day = datetime.datetime.now() - timedelta(days=trace_back_days)
     extracted_posts = []
@@ -62,7 +62,8 @@ def _get_posts_with_reaction(trace_back_days: int) -> list:
             'user': post['user'],
         }
         for post in extracted_posts
-        if ('bot_id' not in post.keys()) & ('reactions' in post.keys())
+        if ('bot_id' not in post.keys())
+        & ('reactions' in post.keys())  # botからの投稿とreactionの内投稿を除外する
     ]
     pprint.pprint(f'extracted_posts_with_reaction:\n{extracted_posts_with_reaction}')
 
