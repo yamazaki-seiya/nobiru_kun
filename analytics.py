@@ -44,7 +44,7 @@ def _get_posts_with_reaction(trace_back_days: int) -> List[Dict]:
     """指定された日数遡った期間のリアクション付き投稿（botからの投稿は除く）を1投稿1辞書型のリストとして取得する"""
 
     oldest_day = datetime.datetime.now() - timedelta(days=trace_back_days)
-    extracted_posts = []
+    # extracted_posts = []
 
     # 実行日からtrace_back_days日前までの投稿を取得
     result = CLIENT.conversations_history(
