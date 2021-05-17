@@ -1,7 +1,6 @@
 import datetime
 import inspect
 import os
-import pprint
 import re
 from datetime import timedelta
 from typing import List
@@ -66,7 +65,7 @@ def _get_posts_with_reaction(trace_back_days: int) -> List[dict]:
         if ('bot_id' not in post.keys())
         & ('reactions' in post.keys())  # botからの投稿とreactionのない投稿を除外する
     ]
-    pprint.pprint(f'extracted_posts_with_reaction:\n{extracted_posts_with_reaction}')
+    print(f'extracted_posts_with_reaction:\n{extracted_posts_with_reaction}')
 
     return extracted_posts_with_reaction
 
