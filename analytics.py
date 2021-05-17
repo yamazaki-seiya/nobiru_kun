@@ -106,7 +106,7 @@ def _get_homember_list(message: str) -> List[str]:
 
 def _post_end_message() -> None:
     """レポートを締めるコメントを投稿する"""
-    message = '''今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！'''
+    message = '今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！'
     _post_message(message)
 
 
