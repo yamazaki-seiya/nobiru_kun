@@ -92,7 +92,7 @@ def _post_award_message(post: Dict) -> None:
 
 
 def _get_post_link(ts: str) -> str:
-    """tsの一致する投稿のリンクを取得する"""
+    """timestampの一致する投稿のリンクを取得する"""
     chat = CLIENT.chat_getPermalink(token=SLACK_TOKEN, channel=CHANNEL_ID, message_ts=ts)
     return chat['permalink']
 
