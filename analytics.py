@@ -72,10 +72,10 @@ def _get_posts_with_reaction(trace_back_days: int) -> List[dict]:
 
 def _post_start_message() -> None:
     """レポート最初のコメントを投稿する"""
-    message = """
+    message = '''
         先週もようがんばったな:kissing_cat:ノビルくんの弟からウィークリーレポートのお知らせやで～
         先週みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:
-    """  # noqa: Q001
+    '''
     _post_message(message)
 
 
@@ -83,11 +83,11 @@ def _post_award_message(post: dict) -> None:
     """最もリアクションが多かった投稿をしたユーザ、メンションされたユーザ、投稿へのリンクを投稿する"""
     chat_link = _get_post_link(post['ts'])
     homember_list = _get_homember_list(post['text'])
-    message = f"""
-        最もリアクションの多かった褒めをした人：<@{post["user"]}>
-        最も褒められたメンバー：{", ".join(homember_list)}
+    message = f'''
+        最もリアクションの多かった褒めをした人：<@{post['user']}>
+        最も褒められたメンバー：{', '.join(homember_list)}
         {chat_link}
-    """  # noqa: Q001
+    '''
     _post_message(message)
 
 
@@ -106,7 +106,7 @@ def _get_homember_list(message: str) -> List[str]:
 
 def _post_end_message() -> None:
     """レポートを締めるコメントを投稿する"""
-    message = """今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！"""  # noqa: Q001
+    message = '''今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！'''
     _post_message(message)
 
 
@@ -119,7 +119,7 @@ def _post_message(message: str) -> None:
         メッセージの前後はtrimされる
         その他空行やタブ文字などがあると変換されるため注意
         https://docs.python.org/ja/3/library/inspect.html#inspect.cleandoc
-    """  # noqa:Q001
+    """
     CLIENT.chat_postMessage(channel=CHANNEL_ID, text=inspect.cleandoc(message))
 
 
