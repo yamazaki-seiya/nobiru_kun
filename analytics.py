@@ -42,7 +42,7 @@ def _extract_most_reacted_posts(trace_back_days: int) -> List[dict]:
 
 
 def _get_posts_with_reaction(trace_back_days: int) -> List[dict]:
-    """実行日から過去days（default 7）日間のリアクション付き投稿（botからの投稿は除く）を1投稿1辞書型のリストとして取得する"""
+    """指定された日数遡った期間のリアクション付き投稿（botからの投稿は除く）を1投稿1辞書型のリストとして取得する"""
 
     oldest_day = datetime.datetime.now() - timedelta(days=trace_back_days)
     extracted_posts = []
