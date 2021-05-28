@@ -11,4 +11,5 @@ services:
       - ${USERPROFILE-~}/.ssh:/home/vscode/.ssh
     image: homeru_bot-image
     container_name: homeru_bot-container
+    env_file: .env
     tty: true
