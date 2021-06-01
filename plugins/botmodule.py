@@ -14,22 +14,24 @@ def homeru_post(message):
     """
     メンション付きの投稿がされた場合に、メッセージ内のメンションされた人をほめる機能
     """
-    _validation_bot_subtype(message)
-
+    if _validation_bot_subtype(message):
+        pass
     # このボットの投稿に反応しないようにする
-    _add_bot_message_subtype(message)
+    # _add_bot_message_subtype(message):
 
-    text = message.body['text']
-    print(f'ポストされたメッセージ: {text}')
-    user_list = _extract_users(text)
-    print(f'user_num: {len(user_list)}')
+    else:
+        text = message.body['text']
+        print(f'ポストされたメッセージ: {text}')
+        user_list = _extract_users(text)
+        print(f'user_num: {len(user_list)}')
 
-    post_message = _get_post_message(user_list)
+        post_message = _get_post_message(user_list)
 
-    # スレッド内のユーザーの返信に、スレッドの外で反応すると会話の流れがわかりにくいため
-    message.send(
-        post_message, thread_ts=message.body['thread_ts'] if 'thread_ts' in message.body else None
-    )
+        # スレッド内のユーザーの返信に、スレッドの外で反応すると会話の流れがわかりにくいため
+        message.send(
+            post_message,
+            thread_ts=message.body['thread_ts'] if 'thread_ts' in message.body else None,
+        )
 
 
 def _validation_bot_subtype(message):
@@ -37,10 +39,10 @@ def _validation_bot_subtype(message):
     return ('subtype' in message.body) and (message.body['subtype'] == 'bot_message')
 
 
-def _add_bot_message_subtype(message):
-    """ボットのメッセージだとわかるように判別をつける"""
-    message.body['subtype'] = 'bot_message'
-    return message
+# def _add_bot_message_subtype(message):
+#     """ボットのメッセージだとわかるように判別をつける"""
+#     message.body['subtype'] = 'bot_message'
+#     return message
 
 
 def _create_random_element_list(path, user_num):
