@@ -5,7 +5,7 @@ import re
 
 from slackbot.bot import listen_to
 
-# 複数のユーザーIDが1つの文字列に含まれる場合に、1ユーザーIDずつ分けて抽出するため
+# Slackへの投稿コメントからユーザーIDを抽出するための正規表現パターン
 _EXTRACT_USER_PATTERN = re.compile(r'<@\w+>')
 
 
