@@ -35,9 +35,9 @@ def homeru_post(message):
 
 def _validation_bot_subtype(message):
     """ボットのメッセージか判定する"""
-    print("botのsubtype確認:", message.body)
+    print('botのsubtype確認:', message.body)
     print(
-        "subtypeの判定結果:",
+        'subtypeの判定結果:',
         ('subtype' in message.body)
         and (message.body['subtype'] in ['bot_message', 'channel_join']),
     )
