@@ -15,7 +15,7 @@ def homeru_post(message):
     メンション付きの投稿がされた場合に、メッセージ内のメンションされた人をほめる機能
     """
     # 反応対象のメッセージのみに反応するようにする
-    if not _is_target_message(message):
+    if _is_target_message(message):
         text = message.body['text']
         print(f'ポストされたメッセージ: {text}')
         user_list = _extract_users(text)
@@ -33,8 +33,8 @@ def homeru_post(message):
 def _is_target_message(message):
     """ボットの反応対象のメッセージかを判定する"""
     # 投稿がbotかslackからの自動投稿の場合、message.bodyの辞書にsubtypeキーが存在する
-    result = ('subtype' in message.body) and (
-        message.body['subtype'] in ['bot_message', 'channel_join']
+    result = not (
+        ('subtype' in message.body) and (message.body['subtype'] in ['bot_message', 'channel_join'])
     )
     print(f'result: {result}')
     return result
