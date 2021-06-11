@@ -32,7 +32,7 @@ def homeru_post(message):
 
 def _is_target_message(message):
     """ボットの反応対象のメッセージかを判定する"""
-    print('botのsubtype確認:', message.body)
+    # 投稿がbotかslackからの自動投稿の場合、message.bodyの辞書にsubtypeキーが存在する
     result = ('subtype' in message.body) and (
         message.body['subtype'] in ['bot_message', 'channel_join']
     )
