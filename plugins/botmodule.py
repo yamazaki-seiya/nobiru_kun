@@ -15,7 +15,7 @@ def homeru_post(message):
     メンション付きの投稿がされた場合に、メッセージ内のメンションされた人をほめる機能
     """
     # 反応対象のメッセージのみに反応するようにする
-    if not  _is_target_message(message):
+    if not _is_target_message(message):
         text = message.body['text']
         print(f'ポストされたメッセージ: {text}')
         user_list = _extract_users(text)
@@ -36,7 +36,7 @@ def _is_target_message(message):
     result = ('subtype' in message.body) and (
         message.body['subtype'] in ['bot_message', 'channel_join']
     )
-    print(f"result: {result}")
+    print(f'result: {result}')
     return result
 
 
