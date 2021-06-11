@@ -15,10 +15,7 @@ def homeru_post(message):
     メンション付きの投稿がされた場合に、メッセージ内のメンションされた人をほめる機能
     """
     # このボットとslackからの参加メッセージに反応しないようにする
-    if _validation_bot_subtype(message):
-        pass
-
-    else:
+    if not  _validation_bot_subtype(message):
         text = message.body['text']
         print(f'ポストされたメッセージ: {text}')
         user_list = _extract_users(text)
