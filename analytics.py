@@ -73,8 +73,10 @@ def _get_posts_with_reaction(trace_back_days: int) -> List[Dict]:
 def _post_start_message() -> None:
     """レポート最初のコメントを投稿する"""
     message = '''
-        先週もようがんばったな:kissing_cat:ノビルくんの弟からウィークリーレポートのお知らせやで～
-        先週みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:
+        やっほー:blossom:ノビルくんの妹やで:ribbon:
+        うちからウィークリーレポートをおしらせするで:laughing:
+        先週もみんなようがんばってくれたみたいでほんま嬉しいわ～:sunflower:
+        みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:
     '''
     _post_message(message)
 
