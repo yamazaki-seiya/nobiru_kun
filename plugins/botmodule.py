@@ -16,18 +16,19 @@ def homeru_post(message):
     """
     # 反応対象のメッセージのみに反応するようにする
     if _is_target_message(message):
-        text = message.body['text']
-        print(f'ポストされたメッセージ: {text}')
-        user_list = _extract_users(text)
-        print(f'user_num: {len(user_list)}')
+        return
+    text = message.body['text']
+    print(f'ポストされたメッセージ: {text}')
+    user_list = _extract_users(text)
+    print(f'user_num: {len(user_list)}')
 
-        post_message = _get_post_message(user_list)
+    post_message = _get_post_message(user_list)
 
-        # スレッド内のユーザーの返信に、スレッドの外で反応すると会話の流れがわかりにくいため
-        message.send(
-            post_message,
-            thread_ts=message.body['thread_ts'] if 'thread_ts' in message.body else None,
-        )
+    # スレッド内のユーザーの返信に、スレッドの外で反応すると会話の流れがわかりにくいため
+    message.send(
+        post_message,
+        thread_ts=message.body['thread_ts'] if 'thread_ts' in message.body else None,
+    )
 
 
 def _is_target_message(message):
