@@ -14,11 +14,9 @@ def homeru_post(message):
     """
     メンション付きの投稿がされた場合に、メッセージ内のメンションされた人をほめる機能
     """
-    _validation_bot_subtype(message)
-
-    # このボットの投稿に反応しないようにする
-    _add_bot_message_subtype(message)
-
+    # 反応対象のメッセージのみに反応するようにする
+    if not _is_target_message(message):
+        return
     text = message.body['text']
     print(f'ポストされたメッセージ: {text}')
     user_list = _extract_users(text)
@@ -28,19 +26,19 @@ def homeru_post(message):
 
     # スレッド内のユーザーの返信に、スレッドの外で反応すると会話の流れがわかりにくいため
     message.send(
-        post_message, thread_ts=message.body['thread_ts'] if 'thread_ts' in message.body else None
+        post_message,
+        thread_ts=message.body['thread_ts'] if 'thread_ts' in message.body else None,
     )
 
 
-def _validation_bot_subtype(message):
-    """ボットのメッセージか判定する"""
-    return ('subtype' in message.body) and (message.body['subtype'] == 'bot_message')
-
-
-def _add_bot_message_subtype(message):
-    """ボットのメッセージだとわかるように判別をつける"""
-    message.body['subtype'] = 'bot_message'
-    return message
+def _is_target_message(message):
+    """ボットの反応対象のメッセージかを判定する"""
+    # 投稿がbotかslackからの自動投稿の場合、message.bodyの辞書にsubtypeキーが存在する
+    result = not (
+        ('subtype' in message.body) and (message.body['subtype'] in ['bot_message', 'channel_join'])
+    )
+    print(f'result: {result}')
+    return result
 
 
 def _create_random_element_list(path, user_num):
