@@ -1,0 +1,35 @@
+ARG PYTHON_VERSION=3.9.5
+FROM python:${PYTHON_VERSION}
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Tokyo
+RUN echo $TZ > /etc/timezone
+
+ARG WORKDIR=/homeru_bot
+WORKDIR ${WORKDIR}
+
+# change default shell
+SHELL ["/bin/bash", "-c"]
+RUN chsh -s /bin/bash
+
+# Increase timeout for apt-get to 300 seconds
+RUN /bin/echo -e "\n\
+    Acquire::http::Timeout \"300\";\n\
+    Acquire::ftp::Timeout \"300\";" >> /etc/apt/apt.conf.d/99timeout
+
+# Configure apt and install packages
+RUN rm -rf /var/lib/apt/lists/* \
+    && apt-get update \
+    && apt-get upgrade -y \
+    && apt-get -y install sudo vim tzdata less \
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install pip and requirements modules
+COPY . .
+RUN pip install -U pip \
+    && pip install -r requirements.txt
+
+ENV DEBIAN_FRONTEND=
+CMD ["python", "bot.py"]
