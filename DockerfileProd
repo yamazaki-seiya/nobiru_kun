@@ -28,8 +28,8 @@ RUN rm -rf /var/lib/apt/lists/* \
 
 # Install pip and requirements modules
 COPY . .
-RUN pip install --no-cache-dir -U pip \
-    && pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -U pip --disable-pip-version-check\
+    && pip install --no-cache-dir --requirement requirements.txt --disable-pip-version-check
 
 ENV DEBIAN_FRONTEND=
 CMD ["python", "bot.py"]

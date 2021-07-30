@@ -36,7 +36,8 @@ RUN wget --progress=dot:giga https://github.com/hadolint/hadolint/releases/downl
     && chmod +x /usr/local/bin/hadolint
 
 # pyright install
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -o - \
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && npm install --global pyright
 
