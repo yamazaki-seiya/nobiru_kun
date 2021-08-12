@@ -41,7 +41,7 @@ def _extract_most_reacted_posts() -> List[Dict]:
 
 
 def _get_posts_with_reaction() -> List[Dict]:
-    """指定された日数遡った期間のリアクション付き投稿（botからの投稿は除く）を1投稿1辞書型のリストとして取得する"""
+    """実行日の前月のリアクション付き投稿（botからの投稿は除く）を1投稿1辞書型のリストとして取得する"""
 
     oldest_day = datetime.today() + relativedelta(months=-1)
     latest_day = datetime.today() + relativedelta(days=-1)
@@ -80,7 +80,7 @@ def _post_start_message() -> None:
     message = '''
         やっほー:blossom:ノビルくんの妹やで:ribbon:
         うちからマンスリーレポートをおしらせするで:laughing:
-        先週もみんなようがんばってくれたみたいでほんま嬉しいわ～:sunflower:
+        先月もみんなようがんばってくれたみたいでほんま嬉しいわ～:sunflower:
         みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたマンスリーベスト褒めエピソードはこれや！:cv2_res_pect:
     '''
     _post_message(message)
@@ -113,7 +113,7 @@ def _get_homember_list(message: str) -> List[str]:
 
 def _post_end_message() -> None:
     """レポートを締めるコメントを投稿する"""
-    message = '今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！'
+    message = '今月もぎょうさん褒めに褒めまくって、伸ばし合っていこか！'
     _post_message(message)
 
 
