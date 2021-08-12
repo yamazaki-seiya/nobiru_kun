@@ -2,23 +2,23 @@ import datetime
 import inspect
 import os
 import re
-from datetime import timedelta
+from datetime import datetime
 from typing import Dict, List
 
+from dateutil.relativedelta import relativedelta
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 SLACK_TOKEN = os.environ['SLACK_TOKEN']
 CHANNEL_ID = os.environ['CHANNEL_ID']
 CLIENT = WebClient(token=SLACK_TOKEN)
-_TRACE_BACK_DAYS = 30
 _EXTRACT_USER_PATTERN = re.compile(r'<@\w*>')
 
 
 def post_award_best_home_weekly() -> None:
-    """実行日から過去7日間の投稿を取得し最もリアクションの多かった投稿を表彰する"""
+    """実行日の前月の投稿を取得し最もリアクションの多かった投稿を表彰する"""
     try:
-        most_reacted_posts = _extract_most_reacted_posts(_TRACE_BACK_DAYS)
+        most_reacted_posts = _extract_most_reacted_posts()
         _post_start_message()
 
         for post in most_reacted_posts:
@@ -30,9 +30,9 @@ def post_award_best_home_weekly() -> None:
         print('Error creating conversation: {}'.format(e))
 
 
-def _extract_most_reacted_posts(trace_back_days: int) -> List[Dict]:
+def _extract_most_reacted_posts() -> List[Dict]:
     """リアクション付き投稿リストのうちで最もリアクション数の多かった投稿を抽出する"""
-    posts_with_reaction = _get_posts_with_reaction(trace_back_days)
+    posts_with_reaction = _get_posts_with_reaction()
     max_reaction_cnt = max([post['reactions_cnt'] for post in posts_with_reaction])
     most_reacted_posts = [
         post for post in posts_with_reaction if post['reactions_cnt'] == max_reaction_cnt
@@ -40,15 +40,20 @@ def _extract_most_reacted_posts(trace_back_days: int) -> List[Dict]:
     return most_reacted_posts
 
 
-def _get_posts_with_reaction(trace_back_days: int) -> List[Dict]:
+def _get_posts_with_reaction() -> List[Dict]:
     """指定された日数遡った期間のリアクション付き投稿（botからの投稿は除く）を1投稿1辞書型のリストとして取得する"""
 
-    oldest_day = datetime.datetime.now() - timedelta(days=trace_back_days)
+    oldest_day = datetime.today() + relativedelta(months=-1)
+    latest_day = datetime.today() + relativedelta(days=-1)
+
     # extracted_posts = []
 
-    # 実行日からtrace_back_days日前までの投稿を取得
+    # 実行日の前月の投稿を取得
     result = CLIENT.conversations_history(
-        channel=CHANNEL_ID, oldest=oldest_day.timestamp(), limit=100000
+        channel=CHANNEL_ID,
+        oldest=oldest_day.timestamp(),
+        latest=latest_day.timestamp(),
+        limit=100000,
     )
     extracted_posts = result['messages']
     print(f'{len(extracted_posts)} messages found')
@@ -108,7 +113,7 @@ def _get_homember_list(message: str) -> List[str]:
 
 def _post_end_message() -> None:
     """レポートを締めるコメントを投稿する"""
-    message = '今月もぎょうさん褒めに褒めまくって、伸ばし合っていこか！'
+    message = '今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！'
     _post_message(message)
 
 
