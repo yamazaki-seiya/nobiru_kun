@@ -1,3 +1,4 @@
+import dataclasses
 import datetime
 import inspect
 import os
@@ -30,17 +31,18 @@ def post_award_best_home_weekly() -> None:
         print('Error creating conversation: {}'.format(e))
 
 
-def _extract_most_reacted_posts(trace_back_days: int) -> List[Dict]:
+def _extract_most_reacted_posts(trace_back_days: int) -> List[Posts]:
     """リアクション付き投稿リストのうちで最もリアクション数の多かった投稿を抽出する"""
     posts_with_reaction = _get_posts_with_reaction(trace_back_days)
-    max_reaction_cnt = max([post['reactions_cnt'] for post in posts_with_reaction])
+    max_reaction_cnt = max(post.reactions_cnt() for post in posts_with_reaction)
     most_reacted_posts = [
-        post for post in posts_with_reaction if post['reactions_cnt'] == max_reaction_cnt
+        post for post in posts_with_reaction if post.reactions_cnt() == max_reaction_cnt
     ]
+    print(most_reacted_posts)
     return most_reacted_posts
 
 
-def _get_posts_with_reaction(trace_back_days: int) -> List[Dict]:
+def _get_posts_with_reaction(trace_back_days: int) -> List[Posts]:
     """指定された日数遡った期間のリアクション付き投稿（botからの投稿は除く）を1投稿1辞書型のリストとして取得する"""
 
     oldest_day = datetime.datetime.now() - timedelta(days=trace_back_days)
@@ -55,12 +57,7 @@ def _get_posts_with_reaction(trace_back_days: int) -> List[Dict]:
 
     # リアクションされた投稿のみを抽出
     extracted_posts_with_reaction = [
-        {
-            'ts': post['ts'],
-            'text': post['text'],
-            'reactions_cnt': sum(reaction['count'] for reaction in post['reactions']),
-            'user': post['user'],
-        }
+        Posts(post['ts'], post['text'], post['reactions'], post['user'])
         for post in extracted_posts
         if ('bot_id' not in post.keys())
         & ('reactions' in post.keys())  # botからの投稿とreactionのない投稿を除外する
@@ -68,6 +65,30 @@ def _get_posts_with_reaction(trace_back_days: int) -> List[Dict]:
     print(f'extracted_posts_with_reaction:\n{extracted_posts_with_reaction}')
 
     return extracted_posts_with_reaction
+
+
+@dataclasses.dataclass
+class Posts:
+    timestamp: str
+    text: str
+    reactions: list
+    user: str
+
+    def reactions_cnt(self) -> int:
+        return sum(reaction['count'] for reaction in self.reactions)
+
+    def _get_post_link(self) -> str:
+        """timestampの一致する投稿のリンクを取得する"""
+        chat = CLIENT.chat_getPermalink(
+            token=SLACK_TOKEN, channel=CHANNEL_ID, message_ts=self.timestamp
+        )
+        return chat['permalink']
+
+    def _get_homember_list(self) -> List[str]:
+        """投稿内でメンションされているユーザのリストを取得"""
+        homember_list = re.findall(_EXTRACT_USER_PATTERN, self.text)
+        print(homember_list)
+        return homember_list
 
 
 def _post_start_message() -> None:
@@ -81,29 +102,16 @@ def _post_start_message() -> None:
     _post_message(message)
 
 
-def _post_award_message(post: Dict) -> None:
+def _post_award_message(post: Posts) -> None:
     """最もリアクションが多かった投稿をしたユーザ、メンションされたユーザ、投稿へのリンクを投稿する"""
-    chat_link = _get_post_link(post['ts'])
-    homember_list = _get_homember_list(post['text'])
+    chat_link = post._get_post_link()
+    homember_list = post._get_homember_list()
     message = f'''
-        最もリアクションの多かった褒めをした人：<@{post['user']}>
+        最もリアクションの多かった褒めをした人：<@{post.user}>
         最も褒められたメンバー：{', '.join(homember_list)}
         {chat_link}
     '''
     _post_message(message)
-
-
-def _get_post_link(ts: str) -> str:
-    """timestampの一致する投稿のリンクを取得する"""
-    chat = CLIENT.chat_getPermalink(token=SLACK_TOKEN, channel=CHANNEL_ID, message_ts=ts)
-    return chat['permalink']
-
-
-def _get_homember_list(message: str) -> List[str]:
-    """投稿内でメンションされているユーザのリストを取得"""
-    homember_list = re.findall(_EXTRACT_USER_PATTERN, message)
-    print(homember_list)
-    return homember_list
 
 
 def _post_end_message() -> None:
