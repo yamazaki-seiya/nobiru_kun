@@ -4,7 +4,7 @@ import inspect
 import os
 import re
 from datetime import timedelta
-from typing import Dict, List
+from typing import List
 
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
@@ -31,7 +31,7 @@ def post_award_best_home_weekly() -> None:
         print('Error creating conversation: {}'.format(e))
 
 
-def _extract_most_reacted_posts(trace_back_days: int) -> List[Posts]:
+def _extract_most_reacted_posts(trace_back_days: int) -> List['Posts']:
     """リアクション付き投稿リストのうちで最もリアクション数の多かった投稿を抽出する"""
     posts_with_reaction = _get_posts_with_reaction(trace_back_days)
     max_reaction_cnt = max(post.reactions_cnt() for post in posts_with_reaction)
@@ -42,7 +42,7 @@ def _extract_most_reacted_posts(trace_back_days: int) -> List[Posts]:
     return most_reacted_posts
 
 
-def _get_posts_with_reaction(trace_back_days: int) -> List[Posts]:
+def _get_posts_with_reaction(trace_back_days: int) -> List['Posts']:
     """指定された日数遡った期間のリアクション付き投稿（botからの投稿は除く）を1投稿1辞書型のリストとして取得する"""
 
     oldest_day = datetime.datetime.now() - timedelta(days=trace_back_days)
