@@ -14,7 +14,7 @@ ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
 # change default shell
-SHELL ["/bin/bash", "-c"]
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN chsh -s /bin/bash
 
 # Increase timeout for apt-get to 300 seconds
@@ -32,11 +32,10 @@ RUN rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/lib/apt/lists/*
 
 # install hadolint
-RUN wget --progress=dot:giga https://github.com/hadolint/hadolint/releases/download/v2.0.0/hadolint-Linux-x86_64 -O /usr/local/bin/hadolint \
+RUN wget --progress=dot:giga https://github.com/hadolint/hadolint/releases/download/v2.6.0/hadolint-Linux-x86_64 -O /usr/local/bin/hadolint \
     && chmod +x /usr/local/bin/hadolint
 
 # pyright install
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && npm install --global pyright
