@@ -20,8 +20,8 @@ _EXTRACT_USER_PATTERN = re.compile(r'<@\w*>')
 class Posts:
     timestamp: str
     text: str
-    reactions: list
     user: str
+    reactions: list = []
 
     def reactions_cnt(self) -> int:
         return sum(reaction['count'] for reaction in self.reactions)
