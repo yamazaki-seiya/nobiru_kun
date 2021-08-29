@@ -47,7 +47,7 @@ def post_award_best_home_weekly() -> None:
         _post_start_message()
 
         for post in most_reacted_posts:
-            _post_award_message(post)
+            _post_award_message(post._get_post_link(), post._get_homember_list(), post.user)
 
         _post_end_message()
 
@@ -102,12 +102,11 @@ def _post_start_message() -> None:
     _post_message(message)
 
 
-def _post_award_message(post: Post) -> None:
+def _post_award_message(chat_link: str, homember_list: list, user: str) -> None:
     """最もリアクションが多かった投稿をしたユーザ、メンションされたユーザ、投稿へのリンクを投稿する"""
-    chat_link = post._get_post_link()
-    homember_list = post._get_homember_list()
+
     message = f'''
-        最もリアクションの多かった褒めをした人：<@{post.user}>
+        最もリアクションの多かった褒めをした人：<@{user}>
         最も褒められたメンバー：{', '.join(homember_list)}
         {chat_link}
     '''
