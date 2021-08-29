@@ -43,8 +43,8 @@ def _extract_most_reacted_posts() -> List[Dict]:
 def _get_posts_with_reaction() -> List[Dict]:
     """実行日の前月のリアクション付き投稿（botからの投稿は除く）を1投稿1辞書型のリストとして取得する"""
 
-    oldest_day = datetime.today() + relativedelta(months=-1)
-    latest_day = datetime.today() + relativedelta(days=-1)
+    oldest_day = _get_first_day_of_last_month()
+    latest_day = _get_last_day_of_last_month()
 
     # extracted_posts = []
 
@@ -73,6 +73,16 @@ def _get_posts_with_reaction() -> List[Dict]:
     print(f'extracted_posts_with_reaction:\n{extracted_posts_with_reaction}')
 
     return extracted_posts_with_reaction
+
+
+def _get_first_day_of_last_month():
+    first_day = datetime.today() + relativedelta(months=-1)
+    return first_day.replace(hour=0, minute=0, second=0, microsecond=0)
+
+
+def _get_last_day_of_last_month():
+    last_day = datetime.today() + relativedelta(days=-1)
+    return first_day.replace(hour=23, minute=59, second=59, microsecond=999999)
 
 
 def _post_start_message() -> None:
