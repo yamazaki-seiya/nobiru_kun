@@ -1,4 +1,3 @@
-import datetime
 import inspect
 import os
 import re
@@ -82,7 +81,7 @@ def _get_first_day_of_last_month():
 
 def _get_last_day_of_last_month():
     last_day = datetime.today() + relativedelta(days=-1)
-    return first_day.replace(hour=23, minute=59, second=59, microsecond=999999)
+    return last_day.replace(hour=23, minute=59, second=59, microsecond=999999)
 
 
 def _post_start_message() -> None:
