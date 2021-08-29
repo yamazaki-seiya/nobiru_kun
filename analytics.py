@@ -40,16 +40,61 @@ class PostedMessage:
         return homember_list
 
 
+class PostMessage:
+    @staticmethod
+    def _post_message(message: str) -> None:
+        """
+        CHANNEL_IDのチャンネルにメッセージを送信する
+
+        Args:
+            message: 送信メッセージ
+            メッセージの前後はtrimされる
+            その他空行やタブ文字などがあると変換されるため注意
+            https://docs.python.org/ja/3/library/inspect.html#inspect.cleandoc
+        """
+        CLIENT.chat_postMessage(channel=CHANNEL_ID, text=inspect.cleandoc(message))
+
+    @staticmethod
+    def _post_start_message() -> None:
+        """レポート最初のコメントを投稿する"""
+        message = '''
+            やっほー:blossom:ノビルくんの妹やで:ribbon:
+            うちからウィークリーレポートをおしらせするで:laughing:
+            先週もみんなようがんばってくれたみたいでほんま嬉しいわ～:sunflower:
+            みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:
+        '''
+        PostMessage._post_message(message)
+
+    @staticmethod
+    def _post_award_message(chat_link: str, homember_list: list, user: str) -> None:
+        """最もリアクションが多かった投稿をしたユーザ、メンションされたユーザ、投稿へのリンクを投稿する"""
+
+        message = f'''
+            最もリアクションの多かった褒めをした人：<@{user}>
+            最も褒められたメンバー：{', '.join(homember_list)}
+            {chat_link}
+        '''
+        PostMessage._post_message(message)
+
+    @staticmethod
+    def _post_end_message() -> None:
+        """レポートを締めるコメントを投稿する"""
+        message = '今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！'
+        PostMessage._post_message(message)
+
+
 def post_award_best_home_weekly() -> None:
     """実行日から過去7日間の投稿を取得し最もリアクションの多かった投稿を表彰する"""
     try:
         most_reacted_posts = _extract_most_reacted_posts(_TRACE_BACK_DAYS)
-        _post_start_message()
+        PostMessage._post_start_message()
 
         for post in most_reacted_posts:
-            _post_award_message(post._get_post_link(), post._get_homember_list(), post.user)
+            PostMessage._post_award_message(
+                post._get_post_link(), post._get_homember_list(), post.user
+            )
 
-        _post_end_message()
+        PostMessage._post_end_message()
 
     except SlackApiError as e:
         print('Error creating conversation: {}'.format(e))
@@ -89,47 +134,6 @@ def _get_posts_with_reaction(trace_back_days: int) -> List[PostedMessage]:
     print(f'extracted_posts_with_reaction:\n{extracted_posts_with_reaction}')
 
     return extracted_posts_with_reaction
-
-
-def _post_start_message() -> None:
-    """レポート最初のコメントを投稿する"""
-    message = '''
-        やっほー:blossom:ノビルくんの妹やで:ribbon:
-        うちからウィークリーレポートをおしらせするで:laughing:
-        先週もみんなようがんばってくれたみたいでほんま嬉しいわ～:sunflower:
-        みんなが送ってくれた「褒め言葉」の中で、一番多くのスタンプを集めたウィークリーベスト褒めエピソードはこれや！:cv2_res_pect:
-    '''
-    _post_message(message)
-
-
-def _post_award_message(chat_link: str, homember_list: list, user: str) -> None:
-    """最もリアクションが多かった投稿をしたユーザ、メンションされたユーザ、投稿へのリンクを投稿する"""
-
-    message = f'''
-        最もリアクションの多かった褒めをした人：<@{user}>
-        最も褒められたメンバー：{', '.join(homember_list)}
-        {chat_link}
-    '''
-    _post_message(message)
-
-
-def _post_end_message() -> None:
-    """レポートを締めるコメントを投稿する"""
-    message = '今週もぎょうさん褒めに褒めまくって、伸ばし合っていこか！'
-    _post_message(message)
-
-
-def _post_message(message: str) -> None:
-    """
-    CHANNEL_IDのチャンネルにメッセージを送信する
-
-    Args:
-        message: 送信メッセージ
-        メッセージの前後はtrimされる
-        その他空行やタブ文字などがあると変換されるため注意
-        https://docs.python.org/ja/3/library/inspect.html#inspect.cleandoc
-    """
-    CLIENT.chat_postMessage(channel=CHANNEL_ID, text=inspect.cleandoc(message))
 
 
 if __name__ == '__main__':
