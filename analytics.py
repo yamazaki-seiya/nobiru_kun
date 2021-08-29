@@ -17,7 +17,7 @@ _EXTRACT_USER_PATTERN = re.compile(r'<@\w*>')
 
 
 @dataclasses.dataclass
-class Post:
+class PostedMessage:
     timestamp: str
     text: str
     user: str
@@ -55,7 +55,7 @@ def post_award_best_home_weekly() -> None:
         print('Error creating conversation: {}'.format(e))
 
 
-def _extract_most_reacted_posts(trace_back_days: int) -> List[Post]:
+def _extract_most_reacted_posts(trace_back_days: int) -> List[PostedMessage]:
     """リアクション付き投稿リストのうちで最もリアクション数の多かった投稿を抽出する"""
     posts_with_reaction = _get_posts_with_reaction(trace_back_days)
     max_reaction_cnt = max(post.reactions_cnt() for post in posts_with_reaction)
@@ -66,7 +66,7 @@ def _extract_most_reacted_posts(trace_back_days: int) -> List[Post]:
     return most_reacted_posts
 
 
-def _get_posts_with_reaction(trace_back_days: int) -> List[Post]:
+def _get_posts_with_reaction(trace_back_days: int) -> List[PostedMessage]:
     """指定された日数遡った期間のリアクション付き投稿（botからの投稿は除く）を1投稿1辞書型のリストとして取得する"""
 
     oldest_day = datetime.datetime.now() - timedelta(days=trace_back_days)
@@ -81,7 +81,7 @@ def _get_posts_with_reaction(trace_back_days: int) -> List[Post]:
 
     # リアクションされた投稿のみを抽出
     extracted_posts_with_reaction = [
-        Post(post['ts'], post['text'], post['reactions'], post['user'])
+        PostedMessage(post['ts'], post['text'], post['reactions'], post['user'])
         for post in extracted_posts
         if ('bot_id' not in post.keys())
         & ('reactions' in post.keys())  # botからの投稿とreactionのない投稿を除外する
