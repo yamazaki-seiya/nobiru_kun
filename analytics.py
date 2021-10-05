@@ -1,3 +1,4 @@
+# pyright: reportPrivateImportUsage = false
 import datetime
 import inspect
 import os
