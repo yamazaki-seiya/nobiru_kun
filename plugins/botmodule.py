@@ -14,8 +14,8 @@ def homeru_post(message):
     """
     メンション付きの投稿がされた場合に、メッセージ内のメンションされた人をほめる機能
     """
-    # 反応対象のメッセージのみに反応するようにする
-    if not _is_target_message(message):
+    if _is_bot_message(message):
+        # botからのメッセージの場合反応しない
         return
     text = message.body['text']
     print(f'ポストされたメッセージ: {text}')
@@ -31,13 +31,15 @@ def homeru_post(message):
     )
 
 
-def _is_target_message(message):
-    """ボットの反応対象のメッセージかを判定する"""
-    # 投稿がbotかslackからの自動投稿の場合、message.bodyの辞書にsubtypeキーが存在する
-    result = not (
-        ('subtype' in message.body) and (message.body['subtype'] in ['bot_message', 'channel_join'])
-    )
-    print(f'result: {result}')
+def _is_bot_message(message):
+    """ボットからのメッセージかを判定する"""
+    hubot_flag = ('subtype' in message.body) and (message.body['subtype'] == 'bot_message')
+    auto_reply_flag = ('subtype' in message.body) and (message.body['subtype'] == 'channel_join')
+    slack_bot_flag = 'bot_id' in message.body
+
+    result = any((hubot_flag, auto_reply_flag, slack_bot_flag))
+
+    print(f'is bot message: {result}')
     return result
 
 
