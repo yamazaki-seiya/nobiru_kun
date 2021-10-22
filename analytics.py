@@ -48,7 +48,7 @@ def _get_posts_with_reaction(trace_back_days: int) -> List[Dict]:
 
     # 実行日からtrace_back_days日前までの投稿を取得
     result = CLIENT.conversations_history(
-        channel=CHANNEL_ID, oldest=oldest_day.timestamp(), limit=100000
+        channel=CHANNEL_ID, oldest=str(oldest_day.timestamp()), limit=100000
     )
     extracted_posts = result['messages']
     print(f'{len(extracted_posts)} messages found')
