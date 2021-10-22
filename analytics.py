@@ -5,7 +5,7 @@ import re
 from datetime import timedelta
 from typing import Dict, List
 
-from slack_sdk.web import WebClient
+from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 SLACK_TOKEN = os.environ['SLACK_TOKEN']
