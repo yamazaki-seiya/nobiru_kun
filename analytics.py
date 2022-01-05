@@ -21,7 +21,7 @@ class PostedMessage:
     timestamp: str
     text: str
     user: str
-    reactions: list = dataclasses.field(default_factory=list)
+    reactions: list[dict] = dataclasses.field(default_factory=list)
 
     def reactions_cnt(self) -> int:
         return sum(reaction['count'] for reaction in self.reactions)
