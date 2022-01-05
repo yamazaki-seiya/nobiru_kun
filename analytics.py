@@ -126,7 +126,9 @@ def _get_posts_with_reaction(trace_back_days: int) -> List[PostedMessage]:
 
     # リアクションされた投稿のみを抽出
     extracted_posts_with_reaction = [
-        PostedMessage(post['ts'], post['text'], post['reactions'], post['user'])
+        PostedMessage(
+            timestamp=post['ts'], text=post['text'], user=post['user'], reactions=post['reactions']
+        )
         for post in extracted_posts
         if ('bot_id' not in post.keys())
         & ('reactions' in post.keys())  # botからの投稿とreactionのない投稿を除外する
