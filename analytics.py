@@ -51,7 +51,7 @@ def _get_posts_with_reaction(trace_back_days: int) -> List[Dict]:
     result = CLIENT.conversations_history(
         channel=CHANNEL_ID, oldest=str(oldest_day.timestamp()), limit=100000
     )
-    extracted_posts = result['messages']
+    extracted_posts: list = result['messages']  # type: ignore
     print(f'{len(extracted_posts)} messages found')
 
     # リアクションされた投稿のみを抽出
@@ -97,7 +97,7 @@ def _post_award_message(post: Dict) -> None:
 def _get_post_link(ts: str) -> str:
     """timestampの一致する投稿のリンクを取得する"""
     chat = CLIENT.chat_getPermalink(token=SLACK_TOKEN, channel=CHANNEL_ID, message_ts=ts)
-    return chat['permalink']
+    return chat['permalink']  # type: ignore
 
 
 def _get_homember_list(message: str) -> List[str]:
