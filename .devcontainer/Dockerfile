@@ -18,6 +18,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN chsh -s /bin/bash
 
 # Increase timeout for apt-get to 300 seconds
+# hadolint ignore=DL3059
 RUN /bin/echo -e "\n\
     Acquire::http::Timeout \"300\";\n\
     Acquire::ftp::Timeout \"300\";" >> /etc/apt/apt.conf.d/99timeout
