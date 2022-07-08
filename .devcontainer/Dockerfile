@@ -18,6 +18,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN chsh -s /bin/bash
 
 # Increase timeout for apt-get to 300 seconds
+# hadolint ignore=DL3059
 RUN /bin/echo -e "\n\
     Acquire::http::Timeout \"300\";\n\
     Acquire::ftp::Timeout \"300\";" >> /etc/apt/apt.conf.d/99timeout
@@ -32,7 +33,7 @@ RUN rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/lib/apt/lists/*
 
 # install hadolint
-RUN wget --progress=dot:giga https://github.com/hadolint/hadolint/releases/download/v2.6.0/hadolint-Linux-x86_64 -O /usr/local/bin/hadolint \
+RUN wget --progress=dot:giga https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -O /usr/local/bin/hadolint \
     && chmod +x /usr/local/bin/hadolint
 
 # pyright install
