@@ -6,7 +6,7 @@ import re
 from slackbot.bot import listen_to
 
 # Slackへの投稿コメントからユーザーIDを抽出するための正規表現パターン
-_EXTRACT_USER_PATTERN = re.compile(r'<@\w+>')
+_EXTRACT_USER_PATTERN = re.compile(r'(<@\w*>)|(<\!subteam\^.*>)')
 
 
 @listen_to(r'.*@.*')
