@@ -37,7 +37,7 @@ RUN wget --progress=dot:giga https://github.com/hadolint/hadolint/releases/downl
 
 # pyright install
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
+    && apt-get install -y --no-install-recommends nodejs \
     && npm install --global pyright
 
 # Create a non-root user to use if preferred - see https://aka.ms/vscode-remote/containers/non-root-user.
