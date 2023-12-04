@@ -64,4 +64,3 @@ def _get_post_message(user_list):
     post_messages = [f'{u} {t}{s}' for u, t, s in zip(user_list, text_list, stamp_list)]
 
     return '\n'.join(post_messages)
-
