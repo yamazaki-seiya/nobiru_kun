@@ -13,7 +13,7 @@ def homeru_post(message: dict[str, Any], say: Say):
     """
     メンション付きの投稿がされた場合に、メッセージ内のメンションされた人をほめる機能
     """
-    if 'user' not in message:
+    if 'bot_id' in message:
         # botからのメッセージの場合反応しない
         return
     text = message['text']
